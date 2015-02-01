@@ -91,9 +91,9 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
     }
   } else {
 
-    int video_crop_size_h = param_.get_video_crop_size_h();
-    int video_crop_size_w = param_.get_video_crop_size_w();
-    int crop_frames = param_.get_video_crop_size_t();
+    int video_crop_size_h = param_.video_crop_size_h();
+    int video_crop_size_w = param_.video_crop_size_w();
+    int crop_frames = param_.video_crop_size_t();
     int crop_width = 0;
     int crop_height = 0;
 
