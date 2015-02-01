@@ -94,26 +94,46 @@ int main(int argc, char** argv) {
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
       // just a dummy operation
       datum.ParseFromString(it->value().ToString());
+
       const string& data = datum.data();
+
       size_in_datum = std::max<int>(datum.data().size(),
           datum.float_data_size());
       CHECK_EQ(size_in_datum, data_size) << "Incorrect data field size " <<
           size_in_datum;
-      if (data.size() != 0) {
-        for (int i = 0; i < size_in_datum; ++i) {
-          sum_blob.set_data(i, sum_blob.data(i) + (uint8_t)data[i]);
+      // if (data.size() != 0) {
+      //   for (int i = 0; i < size_in_datum; ++i) {
+      //     sum_blob.set_data(i, sum_blob.data(i) + (uint8_t)data[i]);
+      //   }
+      // } else {
+      //   for (int i = 0; i < size_in_datum; ++i) {
+      //     sum_blob.set_data(i, sum_blob.data(i) +
+      //         static_cast<float>(datum.float_data(i)));
+      //   }
+      // }
+      // ++count;
+
+      // added by sxyu
+      if ( data.size() != 0 ) {
+        for ( int i = 0; i < datum.frames(); ++i ) {
+          for ( int j = i*size_in_datum; j < i*size_in_datum+size_in_datum; ++j ) {
+            sum_blob.set_data(j, sum_blob.data(j) + (uint8_t)data[j]);
+          }
         }
       } else {
-        for (int i = 0; i < size_in_datum; ++i) {
-          sum_blob.set_data(i, sum_blob.data(i) +
-              static_cast<float>(datum.float_data(i)));
+        for ( int i = 0; i < datum.frames(); ++i ) {
+          for ( int j = i*size_in_datum; j < i*size_in_datum+size_in_datum; ++j ) {
+            sum_blob.set_data(j, sum_blob.data(j) + 
+                static_cast<float>(datum.float_data(j)));
+          }
         }
       }
-      ++count;
+      count += datum.frames();
       if (count % 10000 == 0) {
         LOG(ERROR) << "Processed " << count << " files.";
       }
     }
+
   } else if (db_backend == "lmdb") {  // lmdb
     CHECK_EQ(mdb_cursor_get(mdb_cursor, &mdb_key, &mdb_value, MDB_FIRST),
         MDB_SUCCESS);
@@ -125,17 +145,36 @@ int main(int argc, char** argv) {
           datum.float_data_size());
       CHECK_EQ(size_in_datum, data_size) << "Incorrect data field size " <<
           size_in_datum;
-      if (data.size() != 0) {
-        for (int i = 0; i < size_in_datum; ++i) {
-          sum_blob.set_data(i, sum_blob.data(i) + (uint8_t)data[i]);
+          
+      // if (data.size() != 0) {
+      //   for (int i = 0; i < size_in_datum; ++i) {
+      //     sum_blob.set_data(i, sum_blob.data(i) + (uint8_t)data[i]);
+      //   }
+      // } else {
+      //   for (int i = 0; i < size_in_datum; ++i) {
+      //     sum_blob.set_data(i, sum_blob.data(i) +
+      //         static_cast<float>(datum.float_data(i)));
+      //   }
+      // }
+      // ++count;
+
+      // added by sxyu
+      if ( data.size() != 0 ) {
+        for ( int i = 0; i < datum.frames(); ++i ) {
+          for ( int j = i*size_in_datum; j < i*size_in_datum+size_in_datum; ++j ) {
+            sum_blob.set_data(j, sum_blob.data(j) + (uint8_t)data[j]);
+          }
         }
       } else {
-        for (int i = 0; i < size_in_datum; ++i) {
-          sum_blob.set_data(i, sum_blob.data(i) +
-              static_cast<float>(datum.float_data(i)));
+        for ( int i = 0; i < datum.frames(); ++i ) {
+          for ( int j = i*size_in_datum; j < i*size_in_datum+size_in_datum; ++j ) {
+            sum_blob.set_data(j, sum_blob.data(j) + 
+                static_cast<float>(datum.float_data(j)));
+          }
         }
       }
-      ++count;
+      count += datum.frames();  
+
       if (count % 10000 == 0) {
         LOG(ERROR) << "Processed " << count << " files.";
       }
