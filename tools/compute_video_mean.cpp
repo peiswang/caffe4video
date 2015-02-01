@@ -17,7 +17,7 @@ using std::max;
 int main(int argc, char** argv) {
   ::google::InitGoogleLogging(argv[0]);
   if (argc < 3 || argc > 4) {
-    LOG(ERROR) << "Usage: compute_image_mean input_db output_file"
+    LOG(ERROR) << "Usage: compute_video_mean input_db output_file"
                << " db_backend[leveldb or lmdb]";
     return 1;
   }
@@ -70,6 +70,7 @@ int main(int argc, char** argv) {
   Datum datum;
   BlobProto sum_blob;
   int count = 0;
+  int video_count = 0;
   // load first datum
   if (db_backend == "leveldb") {
     datum.ParseFromString(it->value().ToString());
@@ -86,7 +87,7 @@ int main(int argc, char** argv) {
   const int data_size = datum.channels() * datum.height() * datum.width();
   int size_in_datum = std::max<int>(datum.data().size(),
                                     datum.float_data_size());
-  for (int i = 0; i < size_in_datum; ++i) {
+  for (int i = 0; i < data_size; ++i) {
     sum_blob.add_data(0.);
   }
   LOG(INFO) << "Starting Iteration";
@@ -94,67 +95,28 @@ int main(int argc, char** argv) {
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
       // just a dummy operation
       datum.ParseFromString(it->value().ToString());
-<<<<<<< HEAD
       const string& data = datum.data();
-=======
-
-      const string& data = datum.data();
-
->>>>>>> 2a9d501db59f584ef45f29118ee083c900824a9b
-      size_in_datum = std::max<int>(datum.data().size(),
-          datum.float_data_size());
-      CHECK_EQ(size_in_datum, data_size) << "Incorrect data field size " <<
-          size_in_datum;
-<<<<<<< HEAD
-      if (data.size() != 0) {
-        for (int i = 0; i < size_in_datum; ++i) {
-          sum_blob.set_data(i, sum_blob.data(i) + (uint8_t)data[i]);
-        }
-      } else {
-        for (int i = 0; i < size_in_datum; ++i) {
-          sum_blob.set_data(i, sum_blob.data(i) +
-              static_cast<float>(datum.float_data(i)));
-        }
-      }
-      ++count;
-=======
-      // if (data.size() != 0) {
-      //   for (int i = 0; i < size_in_datum; ++i) {
-      //     sum_blob.set_data(i, sum_blob.data(i) + (uint8_t)data[i]);
-      //   }
-      // } else {
-      //   for (int i = 0; i < size_in_datum; ++i) {
-      //     sum_blob.set_data(i, sum_blob.data(i) +
-      //         static_cast<float>(datum.float_data(i)));
-      //   }
-      // }
-      // ++count;
-
       // added by sxyu
       if ( data.size() != 0 ) {
         for ( int i = 0; i < datum.frames(); ++i ) {
-          for ( int j = i*size_in_datum; j < i*size_in_datum+size_in_datum; ++j ) {
-            sum_blob.set_data(j, sum_blob.data(j) + (uint8_t)data[j]);
+          for ( int j = 0; j < data_size; ++j ) {
+            sum_blob.set_data(j, sum_blob.data(j) + (uint8_t)data[i*data_size+j]);
           }
         }
       } else {
         for ( int i = 0; i < datum.frames(); ++i ) {
-          for ( int j = i*size_in_datum; j < i*size_in_datum+size_in_datum; ++j ) {
+          for ( int j = 0; j < data_size; ++j ) {
             sum_blob.set_data(j, sum_blob.data(j) + 
-                static_cast<float>(datum.float_data(j)));
+                static_cast<float>(datum.float_data(i*data_size+j)));
           }
         }
       }
       count += datum.frames();
->>>>>>> 2a9d501db59f584ef45f29118ee083c900824a9b
-      if (count % 10000 == 0) {
-        LOG(ERROR) << "Processed " << count << " files.";
+      video_count++;
+      if (video_count % 100== 0) {
+        LOG(ERROR) << "Processed " << video_count << " videos.";
       }
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> 2a9d501db59f584ef45f29118ee083c900824a9b
   } else if (db_backend == "lmdb") {  // lmdb
     CHECK_EQ(mdb_cursor_get(mdb_cursor, &mdb_key, &mdb_value, MDB_FIRST),
         MDB_SUCCESS);
@@ -162,56 +124,26 @@ int main(int argc, char** argv) {
       // just a dummy operation
       datum.ParseFromArray(mdb_value.mv_data, mdb_value.mv_size);
       const string& data = datum.data();
-      size_in_datum = std::max<int>(datum.data().size(),
-          datum.float_data_size());
-      CHECK_EQ(size_in_datum, data_size) << "Incorrect data field size " <<
-          size_in_datum;
-<<<<<<< HEAD
-      if (data.size() != 0) {
-        for (int i = 0; i < size_in_datum; ++i) {
-          sum_blob.set_data(i, sum_blob.data(i) + (uint8_t)data[i]);
-        }
-      } else {
-        for (int i = 0; i < size_in_datum; ++i) {
-          sum_blob.set_data(i, sum_blob.data(i) +
-              static_cast<float>(datum.float_data(i)));
-        }
-      }
-      ++count;
-=======
-          
-      // if (data.size() != 0) {
-      //   for (int i = 0; i < size_in_datum; ++i) {
-      //     sum_blob.set_data(i, sum_blob.data(i) + (uint8_t)data[i]);
-      //   }
-      // } else {
-      //   for (int i = 0; i < size_in_datum; ++i) {
-      //     sum_blob.set_data(i, sum_blob.data(i) +
-      //         static_cast<float>(datum.float_data(i)));
-      //   }
-      // }
-      // ++count;
-
       // added by sxyu
       if ( data.size() != 0 ) {
         for ( int i = 0; i < datum.frames(); ++i ) {
-          for ( int j = i*size_in_datum; j < i*size_in_datum+size_in_datum; ++j ) {
-            sum_blob.set_data(j, sum_blob.data(j) + (uint8_t)data[j]);
+          for ( int j = 0; j < data_size; ++j ) {
+            sum_blob.set_data(j, sum_blob.data(j) + (uint8_t)data[i*data_size+j]);
           }
         }
       } else {
         for ( int i = 0; i < datum.frames(); ++i ) {
-          for ( int j = i*size_in_datum; j < i*size_in_datum+size_in_datum; ++j ) {
+          for ( int j = 0; j < data_size; ++j ) {
             sum_blob.set_data(j, sum_blob.data(j) + 
-                static_cast<float>(datum.float_data(j)));
+                static_cast<float>(datum.float_data(i*data_size+j)));
           }
         }
       }
       count += datum.frames();  
+      video_count++;
 
->>>>>>> 2a9d501db59f584ef45f29118ee083c900824a9b
-      if (count % 10000 == 0) {
-        LOG(ERROR) << "Processed " << count << " files.";
+      if (video_count % 100== 0) {
+        LOG(ERROR) << "Processed " << video_count << " videos.";
       }
     } while (mdb_cursor_get(mdb_cursor, &mdb_key, &mdb_value, MDB_NEXT)
         == MDB_SUCCESS);
@@ -219,8 +151,8 @@ int main(int argc, char** argv) {
     LOG(FATAL) << "Unknown db backend " << db_backend;
   }
 
-  if (count % 10000 != 0) {
-    LOG(ERROR) << "Processed " << count << " files.";
+  if (video_count % 100!= 0) {
+    LOG(ERROR) << "Processed " << video_count << " videos.";
   }
   for (int i = 0; i < sum_blob.data_size(); ++i) {
     sum_blob.set_data(i, sum_blob.data(i) / count);

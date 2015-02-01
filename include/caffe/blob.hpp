@@ -18,7 +18,7 @@ namespace caffe {
 template <typename Dtype>
 class Blob {
  public:
-  Blob(need_acum=false)
+  Blob(bool need_acum=false)
        : data_(), diff_(), num_(0), channels_(0), height_(0), width_(0),
        count_(0), capacity_(0) , need_acum_(need_acum), acum_diff_(0) {}
   explicit Blob(const int num, const int channels, const int height,
