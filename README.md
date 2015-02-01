@@ -1,4 +1,4 @@
-# Caffe
+# Caffe_rnn
 
-Caffe is a deep learning framework developed with cleanliness, readability, and speed in mind.<br />
-Consult the [project website](http://caffe.berkeleyvision.org) for all documentation.
+Caffe_rnn leverages the power of deep learning, especially recursive neural network, to improve the performance of human action(hand gesture, body movement) recognition.<br />
+
