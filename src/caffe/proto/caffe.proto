@@ -359,6 +359,11 @@ message TransformationParameter {
   // Specify if we would like to randomly crop an image.
   optional uint32 crop_size = 3 [default = 0];
   optional string mean_file = 4;
+
+  optional bool is_video = 5 [default = false];
+  optional uint32 video_crop_size_t = 6 [default = 0];
+  optional uint32 video_crop_size_h = 7 [default = 0];
+  optional uint32 video_crop_size_w = 8 [default = 0];
 }
 
 // Message that stores parameters used by AccuracyLayer
