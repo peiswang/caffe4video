@@ -36,7 +36,7 @@ template <typename Dtype>
 Blob<Dtype>::Blob(const int num, const int channels, const int height,
     const int width, bool need_acum)
   // capacity_ must be initialized before calling Reshape
-  : capacity_(0) , need_acum_(need_acum), acum_diff_(0) {
+  : capacity_(0) , need_acum_(need_acum), acum_diff_() {
   Reshape(num, channels, height, width);
 }
 
@@ -109,14 +109,14 @@ const Dtype* Blob<Dtype>::gpu_acum_diff() const {
 }
 
 template <typename Dtype>
-const Dtype* Blob<Dtype>::mutable_cpu_acum_diff() {
+Dtype* Blob<Dtype>::mutable_cpu_acum_diff() {
   CHECK(need_acum_);
   CHECK(acum_diff_);
   return static_cast<Dtype*>(acum_diff_->mutable_cpu_data());
 }
 
 template <typename Dtype>
-const Dtype* Blob<Dtype>::mutable_gpu_acum_diff() {
+Dtype* Blob<Dtype>::mutable_gpu_acum_diff() {
   CHECK(need_acum_);
   CHECK(acum_diff_);
   return static_cast<Dtype*>(acum_diff_->mutable_gpu_data());
