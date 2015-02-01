@@ -1,11 +1,11 @@
-// This program converts a set of images to a lmdb/leveldb by storing them
+// This program converts a set of videos to a lmdb/leveldb by storing them
 // as Datum proto buffers.
 // Usage:
-//   convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME
+//   convert_ucf101 [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME
 //
-// where ROOTFOLDER is the root folder that holds all the images, and LISTFILE
+// where ROOTFOLDER is the root folder that holds all the videos, and LISTFILE
 // should be a list of files as well as their labels, in the format as
-//   subfolder1/file1.JPEG 7
+//   subfolder1/file1.mp4 7
 //   ....
 
 #include <gflags/gflags.h>
@@ -23,7 +23,9 @@
 
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/io.hpp"
+#include "caffe/util/video_io.hpp"
 #include "caffe/util/rng.hpp"
+
 
 using namespace caffe;  // NOLINT(build/namespaces)
 using std::pair;
@@ -58,6 +60,7 @@ int main(int argc, char** argv) {
   }
 
   bool is_color = !FLAGS_gray;
+  DatumVideoReader videoReader;
   std::ifstream infile(argv[2]);
   std::vector<std::pair<string, int> > lines;
   string filename;
@@ -127,12 +130,12 @@ int main(int argc, char** argv) {
   bool data_size_initialized = false;
 
   for (int line_id = 0; line_id < lines.size(); ++line_id) {
-    if (!ReadImageToDatum(root_folder + lines[line_id].first,
+    if (!videoReader.ReadVideoToDatum(root_folder + lines[line_id].first,
         lines[line_id].second, resize_height, resize_width, is_color, &datum)) {
       continue;
     }
     if (!data_size_initialized) {
-      data_size = datum.channels() * datum.height() * datum.width();
+      data_size = datum.frames() * datum.channels() * datum.height() * datum.width();
       data_size_initialized = true;
     } else {
       const string& data = datum.data();
