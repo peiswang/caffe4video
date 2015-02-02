@@ -49,13 +49,13 @@ int main(int argc, char** argv) {
   gflags::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
         "format used as input for Caffe.\n"
         "Usage:\n"
-        "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
-        "The ImageNet dataset for the training demo is at\n"
-        "    http://www.image-net.org/download-images\n");
+        "    convert_ucf101 [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
+        "The UCF-101 dataset for the training demo is at\n"
+        "    http://crcv.ucf.edu/data/UCF101/UCF101.rar\n");
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   if (argc != 4) {
-    gflags::ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
+    gflags::ShowUsageWithFlagsRestrict(argv[0], "examples/ucf-101/convert_ucf101");
     return 1;
   }
 
@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
       LOG(FATAL) << "Unknown db backend " << db_backend;
     }
 
-    if (++count % 1000 == 0) {
+    if (++count % 20 == 0) {
       // Commit txn
       if (db_backend == "leveldb") {  // leveldb
         db->Write(leveldb::WriteOptions(), batch);
@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
     }
   }
   // write the last batch
-  if (count % 1000 != 0) {
+  if (count % 20 != 0) {
     if (db_backend == "leveldb") {  // leveldb
       db->Write(leveldb::WriteOptions(), batch);
       delete batch;
