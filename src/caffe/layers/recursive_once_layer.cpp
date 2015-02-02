@@ -186,7 +186,7 @@ void RecursiveOnceLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, vector<Blob<Dtype>*>* bottom) {
 
   Dtype* tmp_diff = tmp_buffer_.mutable_cpu_diff();
-  int* mask = max_idx_.mutable_cpu_data();
+  const int* mask = max_idx_.cpu_data();
   const Dtype* weight = NULL;
   Dtype* weight_diff = NULL;
   if (this->param_propagate_down_[0]) {

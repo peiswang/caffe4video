@@ -15,7 +15,7 @@ void RecursiveOnceLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 
     const Dtype* bottom_data = bottom[i]->gpu_data();
     Dtype* top_data = (*top)[i]->mutable_gpu_data();
-    Dtype* max_idx_data = max_idx_.mutable_gpu_data();
+    int* mask = max_idx_.mutable_gpu_data();
     Dtype* weight_buf_data = weight_buffer_.mutable_gpu_data(); // reshaped weight matrix
     Dtype* out_data = tmp_buffer_.mutable_gpu_data();       // tmp output
     const Dtype* weight = this->blobs_[0]->gpu_data();
@@ -49,13 +49,13 @@ void RecursiveOnceLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
               (Dtype)1., out_data);
         }
         // max-out to top
-        Dtype * top_data_g = top_data + (*top)[i]->offset(n) + top_offset * g;
-        caffe_copy(top_offset, out_data, top_data_g);
-        Dtype *max_idx_data_g = max_idx_data + max_idx_.offset(n) + top_offset * g;
-        caffe_set(top_offset, Dtype(0), max_idx_data_g);
+        Dtype * top_data_ng = top_data + (*top)[i]->offset(n) + top_offset * g;
+        caffe_copy(top_offset, out_data, top_data_ng);
+        int* mask_ng = mask + max_idx_.offset(n) + top_offset * g;
+        caffe_set(top_offset, 0, mask_ng);
         if (multi_weights_) {
           for (int nid = 1; nid < assemble_size_; ++nid) {
-            caffe_vimax(top_offset, top_data_g, max_idx_data_g, out_data + top_offset * nid, static_cast<Dtype>(nid));
+            caffe_vimax(top_offset, top_data_ng, mask_ng, out_data + top_offset * nid, nid);
           }
         }
       }
@@ -69,7 +69,7 @@ void RecursiveOnceLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, vector<Blob<Dtype>*>* bottom) {
 
   Dtype* tmp_diff = tmp_buffer_.mutable_gpu_diff();
-  Dtype* max_idx_data = max_idx_.mutable_gpu_data();
+  const int* mask = max_idx_.gpu_data();
   const Dtype* weight = NULL;
   Dtype* weight_diff = NULL;
   if (this->param_propagate_down_[0]) {
@@ -104,7 +104,7 @@ void RecursiveOnceLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
           // top to tmp
           int offset_ng = top[0]->offset(n) + top_offset * g;
           caffe_gpu_backfill(top_offset, top_diff + offset_ng,
-                             max_idx_data + offset_ng, tmp_diff);
+                             mask + offset_ng, tmp_diff);
           // Bias gradient, if necessary.
           if (bias_term_ && this->param_propagate_down_[1]) {
             caffe_gpu_gemv<Dtype>(CblasNoTrans, vl_ * assemble_size_, N_,
