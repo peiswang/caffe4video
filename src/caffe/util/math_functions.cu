@@ -66,22 +66,22 @@ void caffe_gpu_gemv<double>(const CBLAS_TRANSPOSE TransA, const int M,
 
 template <typename Dtype>
 __global__ void backfill_kernel(const int n, const Dtype* x, 
-                const Dtype* index, Dtype* A) {
+                const int* index, Dtype* A) {
   CUDA_KERNEL_LOOP(idx, n) {
-    A[static_cast<uint32_t>(index[idx])*n+idx] = x[idx];
+    A[index[idx]*n+idx] = x[idx];
   }
 }
 
 template <>
 void caffe_gpu_backfill<float>(const int N, const float* x,
-                const float* index, float* A) {
+                const int* index, float* A) {
   backfill_kernel<float><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
       N, x, index, A);
 }
 
 template <>
 void caffe_gpu_backfill<double>(const int N, const double* x,
-                const double* index, double* A) {
+                const int* index, double* A) {
   backfill_kernel<double><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
       N, x, index, A);
 }
@@ -304,8 +304,8 @@ void caffe_gpu_div<double>(const int N, const double* a,
 }
 
 template <typename Dtype>
-__global__ void vimax_kernel(const int n, Dtype* tmp_max, Dtype* tmp_max_index,
-                const Dtype* new_value, const Dtype new_index) {
+__global__ void vimax_kernel(const int n, Dtype* tmp_max, int* tmp_max_index,
+                const Dtype* new_value, const int new_index) {
     CUDA_KERNEL_LOOP(index, n) {
       if (new_value[index] > tmp_max[index]) {
         tmp_max[index] = new_value[index];
@@ -315,8 +315,8 @@ __global__ void vimax_kernel(const int n, Dtype* tmp_max, Dtype* tmp_max_index,
 }
 
 template <typename Dtype>
-void caffe_vimax(const int N, Dtype* tmp_max, Dtype* tmp_max_index,
-                const Dtype* new_value, const Dtype new_index) {
+void caffe_vimax(const int N, Dtype* tmp_max, int* tmp_max_index,
+                const Dtype* new_value, const int new_index) {
   vimax_kernel<Dtype><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
                   N, tmp_max, tmp_max_index, new_value, new_index);
 }

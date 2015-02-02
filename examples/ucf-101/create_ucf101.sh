@@ -27,16 +27,16 @@ if [ ! -d "$TRAIN_DATA_ROOT" ]; then
   exit 1
 fi
 
-if [ ! -d "$VAL_DATA_ROOT" ]; then
-  echo "Error: VAL_DATA_ROOT is not a path to a directory: $VAL_DATA_ROOT"
-  echo "Set the VAL_DATA_ROOT variable in create_ucf101.sh to the path" \
-       "where the ucf101 validation data is stored."
+if [ ! -d "$TEST_DATA_ROOT" ]; then
+  echo "Error: TEST_DATA_ROOT is not a path to a directory: $TEST_DATA_ROOT"
+  echo "Set the TEST_DATA_ROOT variable in create_ucf101.sh to the path" \
+       "where the ucf101 test data is stored."
   exit 1
 fi
 
 echo "Creating train lmdb..."
 
-GLOG_logtostderr=1 $TOOLS/convert_ucf101 \
+GLOG_logtostderr=1 $TOOLS/convert_ucf101.bin \
     --resize_height=$RESIZE_HEIGHT \
     --resize_width=$RESIZE_WIDTH \
     --shuffle \
@@ -46,7 +46,7 @@ GLOG_logtostderr=1 $TOOLS/convert_ucf101 \
 
 echo "Creating test lmdb..."
 
-GLOG_logtostderr=1 $TOOLS/convert_ucf101 \
+GLOG_logtostderr=1 $TOOLS/convert_ucf101.bin \
     --resize_height=$RESIZE_HEIGHT \
     --resize_width=$RESIZE_WIDTH \
     --shuffle \

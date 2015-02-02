@@ -332,7 +332,7 @@ class RecursiveOnceLayer : public Layer<Dtype> {
   /// dimensions of the data and filter matrices.
   int N_;
   Blob<Dtype> weight_buffer_;
-  Blob<Dtype> max_idx_;
+  Blob<int> max_idx_;
   Blob<Dtype> tmp_buffer_;
   Blob<Dtype> bias_multiplier_;
 };
@@ -502,7 +502,7 @@ class PoolingLayer : public Layer<Dtype> {
   int height_, width_;
   int pooled_height_, pooled_width_;
   Blob<Dtype> rand_idx_;
-  Blob<Dtype> max_idx_;
+  Blob<int> max_idx_;
 };
 
 #ifdef USE_CUDNN

@@ -38,19 +38,16 @@ bool DatumVideoReader::ReadVideoToDatum(const string& filename, const int label,
   } 
 
   int num_channels = (is_color ? 3 : 1);
-  datum->set_frames(num_frames);
-  datum->set_channels(num_channels);
-  datum->set_height(_height);
-  datum->set_width(_width);
-  datum->set_label(label);
   datum->clear_data();
   datum->clear_float_data();
   string* datum_string = datum->mutable_data();
 
+  int frame_cnt = 0;
 
   for (int frame_id = 0; frame_id < num_frames; ++frame_id) {
     reader>>frame;
     if (!frame.empty()) {
+      frame_cnt++;
       if (need_resize) {
         cv::resize(frame, img, cv::Size(_width, _height));
       } else {
@@ -77,11 +74,17 @@ bool DatumVideoReader::ReadVideoToDatum(const string& filename, const int label,
 
     } else {
       LOG(ERROR) << "empty frame in " << filename;
-      reader.release();
-      return false;
+      break;
     }
   }
   reader.release();
+
+  datum->set_frames(frame_cnt);
+  datum->set_channels(num_channels);
+  datum->set_height(_height);
+  datum->set_width(_width);
+  datum->set_label(label);
+
   return true;
    
 }

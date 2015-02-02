@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     LOG(INFO) << "Shuffling data";
     shuffle(lines.begin(), lines.end());
   }
-  LOG(INFO) << "A total of " << lines.size() << " images.";
+  LOG(INFO) << "A total of " << lines.size() << " videos.";
 
   const string& db_backend = FLAGS_backend;
   const char* db_path = argv[3];
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
   } else if (db_backend == "lmdb") {  // lmdb
     LOG(INFO) << "Opening lmdb " << db_path;
     CHECK_EQ(mkdir(db_path, 0744), 0)
-        << "mkdir " << db_path << "failed";
+        << "mkdir " << db_path << " failed";
     CHECK_EQ(mdb_env_create(&mdb_env), MDB_SUCCESS) << "mdb_env_create failed";
     CHECK_EQ(mdb_env_set_mapsize(mdb_env, 1099511627776), MDB_SUCCESS)  // 1TB
         << "mdb_env_set_mapsize failed";
@@ -127,21 +127,16 @@ int main(int argc, char** argv) {
   const int kMaxKeyLength = 256;
   char key_cstr[kMaxKeyLength];
   int data_size;
-  bool data_size_initialized = false;
 
   for (int line_id = 0; line_id < lines.size(); ++line_id) {
     if (!videoReader.ReadVideoToDatum(root_folder + lines[line_id].first,
         lines[line_id].second, resize_height, resize_width, is_color, &datum)) {
       continue;
     }
-    if (!data_size_initialized) {
-      data_size = datum.frames() * datum.channels() * datum.height() * datum.width();
-      data_size_initialized = true;
-    } else {
-      const string& data = datum.data();
-      CHECK_EQ(data.size(), data_size) << "Incorrect data field size "
+    data_size = datum.frames() * datum.channels() * datum.height() * datum.width();
+    const string& data = datum.data();
+    CHECK_EQ(data.size(), data_size) << "Incorrect data field size "
           << data.size();
-    }
     // sequential
     snprintf(key_cstr, kMaxKeyLength, "%08d_%s", line_id,
         lines[line_id].first.c_str());

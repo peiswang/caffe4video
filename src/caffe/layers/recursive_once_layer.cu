@@ -6,6 +6,8 @@
 #include "caffe/vision_layers.hpp"
 #include <algorithm>
 
+namespace caffe {
+
 template <typename Dtype>
 void RecursiveOnceLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       vector<Blob<Dtype>*>* top) {
