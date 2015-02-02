@@ -12,7 +12,8 @@
 
 namespace caffe {
 
-~DatumVideoReader::DatumVideoReader() {
+// added destructor definition in video_io.hpp
+DatumVideoReader::~DatumVideoReader() {
   if(reader.isOpened()) {
     reader.release();
   }
@@ -45,6 +46,7 @@ bool DatumVideoReader::ReadVideoToDatum(const string& filename, const int label,
   datum->clear_data();
   datum->clear_float_data();
   string* datum_string = datum->mutable_data();
+
 
   for (int frame_id = 0; frame_id < num_frames; ++frame_id) {
     reader>>frame;

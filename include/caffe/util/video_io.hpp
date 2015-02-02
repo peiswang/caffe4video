@@ -17,11 +17,13 @@ public:
        const int height, const int width, Datum* datum);
   inline bool ReadVideoToDatum(const string& filename, const int label,
        Datum* datum);
+  // added by sxyu
+  ~DatumVideoReader();
 private:
   cv::Mat frame;
   cv::Mat img;  // after resize
   cv::VideoCapture reader;
-}
+};
 
 
 }  // namespace caffe
