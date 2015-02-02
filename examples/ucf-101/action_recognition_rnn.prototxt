@@ -1,0 +1,432 @@
+name: "conv_rnn_net"
+layers {
+  name: "data"
+  type: DATA
+  top: "data"
+  top: "label"
+  data_param {
+    source: "examples/ucf-101/rnn_train_lmdb"
+    backend: LMDB
+    batch_size: 30
+  } 
+  transform_param {
+    crop_size: 227
+    mean_file: "examples/ucf-101/rnn_mean.binaryproto"
+    mirror: true
+  }
+  include: { phrase: TRAIN }
+}
+
+layers {
+  name: "data"
+  type: DATA
+  top: "data"
+  top: "label"
+  data_param {
+    source: "examples/ucf-101/rnn_test_lmdb"
+    backend: LMDB
+    batch_size: 30
+  }
+  transform_param {
+    crop_size: 227
+    mean_file: "examples/ucf-101/rnn_mean.binaryproto"
+    mirror: false 
+  }
+  include: { phrase: TEST }
+}
+
+layers {
+  name: "conv1"
+  type: MULTICONVOLUTION  
+  bottom: "data"
+  top: "conv1"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 96
+    kernel_size: 11
+    stride: 4
+    weight_filler {
+      type: "gaussian"
+      std: 0.01 
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layers {
+  name: "relu1"
+  type: RELU
+  bottom: "conv1"
+  top: "conv1"
+}
+
+layers {
+  name: "pool1"
+  type: POOLING
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+
+layers {
+  name: "norm1"
+  type: LRN
+  bottom: "pool1"
+  top: "norm1"
+  lrn_param {
+    local_size: 5
+    alpha: 0.0001
+    beta: 0.75
+  }
+}
+
+
+
+layers {
+  name: "rnn1"
+  type: RecursiveOnce
+  bottom: "norm1"
+  top: "rnn1"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  recursive_once_param {
+    group: 22
+    relative_position: 0
+    relative_position: 1
+    num_uv: 2
+    assemble_size: 2
+    stride: 2
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+  param: "rnn1_w"
+  param: "rnn1_b"
+}
+
+layers {
+  name: "rnn2"
+  type: RecursiveOnce
+  bottom: "rnn1"
+  top: "rnn2"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  recursive_once_param {
+    group: 11
+    relative_position: 0
+    relative_position: 1
+    num_uv: 2
+    assemble_size: 2
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+  param: "rnn1_w"
+  param: "rnn1_b"
+}
+
+layers {
+  name: "rnn3"
+  type: RecursiveOnce
+  bottom: "rnn2"
+  top: "rnn3"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  recursive_once_param {
+    group: 10
+    relative_position: 0
+    relative_position: 2
+    num_uv: 3
+    assemble_size: 2
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+  param: "rnn1_w"
+  param: "rnn1_b"
+}
+
+layers {
+  name: "conv2"
+  type: MULTICONVOLUTION
+  bottom: "rnn3"
+  top: "conv2"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 256
+    pad: 2
+    kernel_size: 5
+    group: 2
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+layers {
+  name: "relu2"
+  type: RELU
+  bottom: "conv2"
+  top: "conv2"
+}
+layers {
+  name: "pool2"
+  type: POOLING
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layers {
+  name: "norm2"
+  type: LRN
+  bottom: "pool2"
+  top: "norm2"
+  lrn_param {
+    local_size: 5
+    alpha: 0.0001
+    beta: 0.75
+  }
+}
+
+
+layers {
+  name: "rnn4"
+  type: RecursiveOnce
+  bottom: "norm2"
+  top: "rnn4"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  recursive_once_param {
+    group: 8
+    relative_position: 0
+    relative_position: 1
+    num_uv: 2
+    assemble_size: 2
+    stride: 2
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+  param: "rnn2_w"
+  param: "rnn2_b"  
+}
+
+layers {
+  name: "rnn5"
+  type: RecursiveOnce
+  bottom: "rnn4"
+  top: "rnn5"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  recursive_once_param {
+    group: 4
+    relative_position: 0
+    relative_position: 1
+    num_uv: 2
+    assemble_size: 2
+    stride: 2
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+  param: "rnn2_w"
+  param: "rnn2_b"  
+}
+
+layers {
+  name: "rnn6"
+  type: RecursiveOnce
+  bottom: "rnn5"
+  top: "rnn6"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  recursive_once_param {
+    group: 2
+    relative_position: 0
+    relative_position: 1
+    num_uv: 2
+    assemble_size: 2
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+  param: "rnn2_w"
+  param: "rnn2_b"  
+}
+
+layers {
+  name: "conv3"
+  type: MULTICONVOLUTION
+  bottom: "rnn6"
+  top: "conv3"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 384
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layers {
+  name: "relu3"
+  type: RELU
+  bottom: "conv3"
+  top: "conv3"
+}
+
+layers {
+  name: "pool3"
+  type: POOLING
+  bottom: "conv3"
+  top: "pool3"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layers {
+  name: "norm3"
+  type: LRN
+  bottom: "pool3"
+  top: "norm3"
+  lrn_param {
+    local_size: 5
+    alpha: 0.0001
+    beta: 0.75
+  }
+}
+
+
+layers {
+  name: "fc4"
+  type: INNER_PRODUCT
+  bottom: "norm3"
+  top: "fc6"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  inner_product_param {
+    num_output: 4096
+    weight_filler {
+      type: "gaussian"
+      std: 0.005
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+
+layers {
+  name: "relu4"
+  type: RELU
+  bottom: "fc4"
+  top: "fc4"
+}
+layers {
+  name: "drop4"
+  type: DROPOUT
+  bottom: "fc4"
+  top: "fc4"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layers {
+  name: "accuracy"
+  type: ACCURACY
+  bottom: "fc4"
+  bottom: "label"
+  top: "accuracy"
+  include: { phase: TEST }
+}
+
+
+layers {
+  name: "loss"
+  type: SOFTMAX_LOSS
+  bottom: "fc4"
+  bottom: "label"
+  top: "loss"
+}
+
