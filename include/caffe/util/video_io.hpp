@@ -21,7 +21,7 @@ private:
   cv::Mat frame;
   cv::Mat img;  // after resize
   cv::VideoCapture reader;
-}
+};
 
 
 }  // namespace caffe

@@ -45,6 +45,9 @@ bool DatumVideoReader::ReadVideoToDatum(const string& filename, const int label,
   datum->clear_data();
   datum->clear_float_data();
   string* datum_string = datum->mutable_data();
+  
+  // added by sxyu
+  cv::Mat img;
 
   for (int frame_id = 0; frame_id < num_frames; ++frame_id) {
     reader>>frame;
