@@ -29,7 +29,7 @@ void caffe_cpu_gemv(const CBLAS_TRANSPOSE TransA, const int M, const int N,
 //                                             [0, 0.4, 0.1, 0]] 
 template <typename Dtype>
 void caffe_cpu_backfill(const int N, const Dtype* x,
-     const Dtype* index, Dtype* A);
+     const int* index, Dtype* A);
 
 // added by sxyu
 void caffe_cal_norm(const int N, const float* x, float &norm, int incre);
@@ -78,8 +78,8 @@ template <typename Dtype>
 void caffe_div(const int N, const Dtype* a, const Dtype* b, Dtype* y);
 
 template <typename Dtype>
-void caffe_vimax(const int N, Dtype* tmp_max, Dtype* tmp_max_index,
-                const Dtype* new_value, const Dtype new_index);
+void caffe_vimax(const int N, Dtype* tmp_max, int* tmp_max_index,
+                const Dtype* new_value, const int new_index);
 
 template <typename Dtype>
 void caffe_powx(const int n, const Dtype* a, const Dtype b, Dtype* y);
@@ -184,7 +184,7 @@ void caffe_gpu_gemv(const CBLAS_TRANSPOSE TransA, const int M, const int N,
 //                                             [0, 0.4, 0.1, 0]] 
 template <typename Dtype>
 void caffe_gpu_backfill(const int N, const Dtype* x,
-     const Dtype* index, Dtype* A);
+     const int* index, Dtype* A);
 
 template <typename Dtype>
 void caffe_gpu_axpy(const int N, const Dtype alpha, const Dtype* X,

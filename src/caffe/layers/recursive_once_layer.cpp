@@ -45,14 +45,10 @@ void RecursiveOnceLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 
   // Configure output channels and groups.
   channels_ = bottom[0]->channels();
-  //num_output_ = this->layer_param_.convolution_param().num_output();
-  //CHECK_GT(num_output_, 0);
   CHECK_EQ(channels_ % group_, 0);
 
   group_out_ = (group_ - across_) / stride_ + 1; // number of output vectors
   vl_ = channels_ / group_;         // length of output vector
-  //CHECK_EQ(num_output_ % group_, 0)
-  //    << "Number of output should be multiples of group.";
 
   bias_term_ = recursive_once_param.bias_term();
   if (this->blobs_.size() > 0) {
@@ -135,7 +131,8 @@ void RecursiveOnceLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 
     const Dtype* bottom_data = bottom[i]->cpu_data();
     Dtype* top_data = (*top)[i]->mutable_cpu_data();
-    Dtype* max_idx_data = max_idx_.mutable_cpu_data();
+    int* mask = NULL;
+    mask = max_idx_.mutable_cpu_data();
     Dtype* weight_buf_data = weight_buffer_.mutable_cpu_data(); // reshaped weight matrix
     Dtype* out_data = tmp_buffer_.mutable_cpu_data();       // tmp output
     const Dtype* weight = this->blobs_[0]->cpu_data();
@@ -169,13 +166,13 @@ void RecursiveOnceLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
               (Dtype)1., out_data);
         }
         // max-out to top
-        Dtype * top_data_g = top_data + (*top)[i]->offset(n) + top_offset * g;
-        caffe_copy(top_offset, out_data, top_data_g);
-        Dtype *max_idx_data_g = max_idx_data + max_idx_.offset(n) + top_offset * g;
-        caffe_set(top_offset, Dtype(0), max_idx_data_g);
+        Dtype * top_data_ng = top_data + (*top)[i]->offset(n) + top_offset * g;
+        caffe_copy(top_offset, out_data, top_data_ng);
+        int* mask_ng = mask + max_idx_.offset(n) + top_offset * g;
+        caffe_set(top_offset, 0, mask_ng);
         if (multi_weights_) {
           for (int nid = 1; nid < assemble_size_; ++nid) {
-            caffe_vimax(top_offset, top_data_g, max_idx_data_g, out_data + top_offset * nid, static_cast<Dtype>(nid));
+            caffe_vimax(top_offset, top_data_ng, mask_ng, out_data + top_offset * nid, nid);
           }
         }
       }
@@ -189,7 +186,7 @@ void RecursiveOnceLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, vector<Blob<Dtype>*>* bottom) {
 
   Dtype* tmp_diff = tmp_buffer_.mutable_cpu_diff();
-  Dtype* max_idx_data = max_idx_.mutable_cpu_data();
+  const int* mask = max_idx_.cpu_data();
   const Dtype* weight = NULL;
   Dtype* weight_diff = NULL;
   if (this->param_propagate_down_[0]) {
@@ -224,7 +221,7 @@ void RecursiveOnceLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
           // top to tmp
           int offset_ng = top[0]->offset(n) + top_offset * g;
           caffe_cpu_backfill(top_offset, top_diff + offset_ng,
-                             max_idx_data + offset_ng, tmp_diff);
+                             mask + offset_ng, tmp_diff);
           // Bias gradient, if necessary.
           if (bias_term_ && this->param_propagate_down_[1]) {
             caffe_cpu_gemv<Dtype>(CblasNoTrans, vl_ * assemble_size_, N_,

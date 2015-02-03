@@ -51,9 +51,9 @@ void caffe_cpu_gemv<double>(const CBLAS_TRANSPOSE TransA, const int M,
 
 template <typename Dtype>
 void caffe_cpu_backfill(const int N, const Dtype* x,
-                const Dtype* index, Dtype* A) {
+                const int* index, Dtype* A) {
   for (int i = 0; i < N; ++i) {
-    A[static_cast<int>(index[i])*N+i] = x[i];
+    A[index[i]*N+i] = x[i];
   }
 }
 
@@ -198,8 +198,8 @@ void caffe_div<double>(const int n, const double* a, const double* b,
 }
 
 template <>
-void caffe_vimax<float>(const int n, float* tmp_max, float* tmp_max_index,
-                const float* new_value, const float new_index) {
+void caffe_vimax<float>(const int n, float* tmp_max, int* tmp_max_index,
+                const float* new_value, const int new_index) {
   for (int i=0;i<n;++i) {
     if (new_value[i]>tmp_max[i]) {
       tmp_max[i] = new_value[i];
@@ -209,8 +209,8 @@ void caffe_vimax<float>(const int n, float* tmp_max, float* tmp_max_index,
 }
 
 template <>
-void caffe_vimax<double>(const int n, double* tmp_max, double* tmp_max_index,
-                const double* new_value, const double new_index) {
+void caffe_vimax<double>(const int n, double* tmp_max, int* tmp_max_index,
+                const double* new_value, const int new_index) {
   for (int i=0;i<n;++i) {
     if (new_value[i]>tmp_max[i]) {
       tmp_max[i] = new_value[i];

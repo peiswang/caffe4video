@@ -49,13 +49,13 @@ int main(int argc, char** argv) {
   gflags::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
         "format used as input for Caffe.\n"
         "Usage:\n"
-        "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
-        "The ImageNet dataset for the training demo is at\n"
-        "    http://www.image-net.org/download-images\n");
+        "    convert_ucf101 [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
+        "The UCF-101 dataset for the training demo is at\n"
+        "    http://crcv.ucf.edu/data/UCF101/UCF101.rar\n");
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   if (argc != 4) {
-    gflags::ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
+    gflags::ShowUsageWithFlagsRestrict(argv[0], "examples/ucf-101/convert_ucf101");
     return 1;
   }
 
@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     LOG(INFO) << "Shuffling data";
     shuffle(lines.begin(), lines.end());
   }
-  LOG(INFO) << "A total of " << lines.size() << " images.";
+  LOG(INFO) << "A total of " << lines.size() << " videos.";
 
   const string& db_backend = FLAGS_backend;
   const char* db_path = argv[3];
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
   } else if (db_backend == "lmdb") {  // lmdb
     LOG(INFO) << "Opening lmdb " << db_path;
     CHECK_EQ(mkdir(db_path, 0744), 0)
-        << "mkdir " << db_path << "failed";
+        << "mkdir " << db_path << " failed";
     CHECK_EQ(mdb_env_create(&mdb_env), MDB_SUCCESS) << "mdb_env_create failed";
     CHECK_EQ(mdb_env_set_mapsize(mdb_env, 1099511627776), MDB_SUCCESS)  // 1TB
         << "mdb_env_set_mapsize failed";
@@ -127,21 +127,16 @@ int main(int argc, char** argv) {
   const int kMaxKeyLength = 256;
   char key_cstr[kMaxKeyLength];
   int data_size;
-  bool data_size_initialized = false;
 
   for (int line_id = 0; line_id < lines.size(); ++line_id) {
     if (!videoReader.ReadVideoToDatum(root_folder + lines[line_id].first,
         lines[line_id].second, resize_height, resize_width, is_color, &datum)) {
       continue;
     }
-    if (!data_size_initialized) {
-      data_size = datum.frames() * datum.channels() * datum.height() * datum.width();
-      data_size_initialized = true;
-    } else {
-      const string& data = datum.data();
-      CHECK_EQ(data.size(), data_size) << "Incorrect data field size "
+    data_size = datum.frames() * datum.channels() * datum.height() * datum.width();
+    const string& data = datum.data();
+    CHECK_EQ(data.size(), data_size) << "Incorrect data field size "
           << data.size();
-    }
     // sequential
     snprintf(key_cstr, kMaxKeyLength, "%08d_%s", line_id,
         lines[line_id].first.c_str());
@@ -163,7 +158,7 @@ int main(int argc, char** argv) {
       LOG(FATAL) << "Unknown db backend " << db_backend;
     }
 
-    if (++count % 1000 == 0) {
+    if (++count % 20 == 0) {
       // Commit txn
       if (db_backend == "leveldb") {  // leveldb
         db->Write(leveldb::WriteOptions(), batch);
@@ -181,7 +176,7 @@ int main(int argc, char** argv) {
     }
   }
   // write the last batch
-  if (count % 1000 != 0) {
+  if (count % 20 != 0) {
     if (db_backend == "leveldb") {  // leveldb
       db->Write(leveldb::WriteOptions(), batch);
       delete batch;
