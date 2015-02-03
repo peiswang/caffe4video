@@ -424,7 +424,7 @@ message ConvolutionParameter {
 // Added by wps
 // Message that stores parameters used by MultiConvolutionLayer
 message MultiConvolutionParameter {
-  optional uint32 num_output = 1; // The number of outputs for the layer
+  optional uint32 num_output = 1; // The number of outputs for the layer (kernels * groups)
   optional bool bias_term = 2 [default = true]; // whether to have bias terms
   // Pad, kernel size, and stride are all given as a single value for equal
   // dimensions in height and width or as Y, X pairs.

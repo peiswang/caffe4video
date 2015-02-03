@@ -33,8 +33,8 @@ void caffe_cpu_backfill(const int N, const Dtype* x,
 <<<<<<< HEAD
 
 // added by sxyu
-void caffe_cal_norm(const int N, const float* x, float &norm, int incre);
-void caffe_cal_norm(const int N, const double* x, double &norm, int incre);
+template <typename Dtype>
+void caffe_cal_norm(const int N, const Dtype* x, Dtype &norm, int incre);
 
 
 

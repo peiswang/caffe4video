@@ -59,11 +59,13 @@ void caffe_cpu_backfill(const int N, const Dtype* x,
 
 // added by sxyu
 // calculate the euclidean norm of a vector
-void caffe_cal_norm(const int N, const float* x, float &norm, int incre) {
+template <>
+void caffe_cal_norm<float>(const int N, const float* x, float &norm, int incre) {
   norm = cblas_snrm2(N, x, incre);
 }
 
-void caffe_cal_norm(const int N, const double* x, double &norm, int incre) {
+template <>
+void caffe_cal_norm<double>(const int N, const double* x, double &norm, int incre) {
   norm = cblas_dnrm2(N, x, incre);
 }
 
