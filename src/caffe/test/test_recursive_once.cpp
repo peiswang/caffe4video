@@ -83,7 +83,7 @@ TYPED_TEST(RecursiveOnceTest, TestGradient) {
   	layer_param.mutable_recursive_once_param();
 
   recursive_once_param->set_group(8);
-  recursive_once_param->set_assemble_size(1); //4
+  recursive_once_param->set_assemble_size(2); //4
   recursive_once_param->set_stride(4);
   recursive_once_param->set_num_uv(3);
   recursive_once_param->add_relative_position(0);

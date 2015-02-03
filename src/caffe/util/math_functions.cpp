@@ -49,21 +49,38 @@ void caffe_cpu_gemv<double>(const CBLAS_TRANSPOSE TransA, const int M,
   cblas_dgemv(CblasRowMajor, TransA, M, N, alpha, A, N, x, 1, beta, y, 1);
 }
 
-template <typename Dtype>
-void caffe_cpu_backfill(const int N, const Dtype* x,
-                const int* index, Dtype* A) {
+template <>
+void caffe_cpu_backfill<float>(const int N, const float* x,
+                const int* index, float* A) {
   for (int i = 0; i < N; ++i) {
     A[index[i]*N+i] = x[i];
   }
 }
 
+template <>
+void caffe_cpu_backfill<double>(const int N, const double* x,
+                const int* index, double* A) {
+  for (int i = 0; i < N; ++i) {
+    A[index[i]*N+i] = x[i];
+  }
+}
+//template <typename Dtype>
+//void caffe_cpu_backfill(const int N, const Dtype* x,
+//                const int* index, Dtype* A) {
+//  for (int i = 0; i < N; ++i) {
+//    A[index[i]*N+i] = x[i];
+//  }
+//}
+
 // added by sxyu
 // calculate the euclidean norm of a vector
-void caffe_cal_norm(const int N, const float* x, float &norm, int incre) {
+template <>
+void caffe_cal_norm<float>(const int N, const float* x, float &norm, int incre) {
   norm = cblas_snrm2(N, x, incre);
 }
 
-void caffe_cal_norm(const int N, const double* x, double &norm, int incre) {
+template <>
+void caffe_cal_norm<double>(const int N, const double* x, double &norm, int incre) {
   norm = cblas_dnrm2(N, x, incre);
 }
 

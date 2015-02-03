@@ -103,7 +103,7 @@ void RecursiveOnceLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   for (int top_id = 0; top_id < top->size(); ++top_id) {
     (*top)[top_id]->Reshape(num_, vl_ * group_out_, height_, width_);
   }
-  if(multi_weights_)
+  //if(multi_weights_)
     max_idx_.Reshape(num_, vl_ * group_out_, height_, width_);
   // Prepare the matrix multiplication computation.
   // Each input will be convolved as a single GEMM.
