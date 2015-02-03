@@ -481,6 +481,16 @@ void SGDSolver<Dtype>::ComputeUpdateValue() {
         }
       }
 
+      // added by sxyu
+      // monitor ration = gradient_update_norm / weight_norm
+      Dtype grad_norm, weight_norm;
+      caffe_cal_norm(net_params[param_id]->count(),
+                         net_params[param_id]->cpu_data(), grad_norm, 1);
+      caffe_cal_norm(history_[param_id]->count(), 
+                         history_[param_id]->cpu_data(), weight_norm, 1);
+      LOG(INFO) << "Iteration " << this->iter_ << ": gradient_update_norm/weight_norm = "
+      << grad_norm / weight_norm;
+
       caffe_cpu_axpby(net_params[param_id]->count(), local_rate,
                 net_params[param_id]->cpu_diff(), momentum,
                 history_[param_id]->mutable_cpu_data());

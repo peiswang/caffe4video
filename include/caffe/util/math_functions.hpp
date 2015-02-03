@@ -30,6 +30,16 @@ void caffe_cpu_gemv(const CBLAS_TRANSPOSE TransA, const int M, const int N,
 template <typename Dtype>
 void caffe_cpu_backfill(const int N, const Dtype* x,
      const int* index, Dtype* A);
+<<<<<<< HEAD
+
+// added by sxyu
+void caffe_cal_norm(const int N, const float* x, float &norm, int incre);
+void caffe_cal_norm(const int N, const double* x, double &norm, int incre);
+
+
+
+=======
+>>>>>>> upstream/master
 
 template <typename Dtype>
 void caffe_axpy(const int N, const Dtype alpha, const Dtype* X,
