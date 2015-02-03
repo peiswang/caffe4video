@@ -31,6 +31,13 @@ template <typename Dtype>
 void caffe_cpu_backfill(const int N, const Dtype* x,
      const Dtype* index, Dtype* A);
 
+// added by sxyu
+void caffe_cal_norm(const int N, const float* x, float &norm, int incre);
+void caffe_cal_norm(const int N, const double* x, double &norm, int incre);
+
+
+
+
 template <typename Dtype>
 void caffe_axpy(const int N, const Dtype alpha, const Dtype* X,
     Dtype* Y);
