@@ -130,7 +130,7 @@ void MultiConvolutionLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   // Set up the all ones "bias multiplier" for adding biases by BLAS
   if (bias_term_) {
     bias_multiplier_.Reshape(1, 1, 1, N_);
-    caffe_set(N_, Dtype(1), bias_multiplier_.mutable_cpu_data());
+    caffe_set(N_, Dtype(1.), bias_multiplier_.mutable_cpu_data());
   }
 }
 
