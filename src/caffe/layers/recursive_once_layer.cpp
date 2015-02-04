@@ -19,7 +19,6 @@ void RecursiveOnceLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   num_uv_ = recursive_once_param.num_uv();
   assemble_size_ = recursive_once_param.assemble_size();
   stride_ = recursive_once_param.stride();
-  correspond_ = recursive_once_param.correspond();
 
   CHECK_GT(num_uv_, 0) << "num_uv must greater than zero";
   CHECK_EQ(recursive_once_param.relative_position_size(), num_uv_) 
@@ -145,6 +144,7 @@ void RecursiveOnceLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     // reshape weight matrix  
     //   -- dst weight matrix [assemble_size*vl , across*vl]
     //   -- src weight matrix [assemble_size , num_uv, vl, vl]
+    caffe_set(M_ * K_, Dtype(0.0), weight_buf_data);
     for(int as = 0; as < assemble_size_; ++as) {
       for(int h = 0; h < vl_; ++h) {
         for (int wc = 0; wc < num_uv_; ++wc) {
@@ -200,7 +200,7 @@ void RecursiveOnceLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     caffe_set(this->blobs_[1]->count(), Dtype(0), bias_diff);
   }
 
-  Dtype* weight_buf_data = weight_buffer_.mutable_cpu_data(); // reshaped weight matrix
+  const Dtype* weight_buf_data = weight_buffer_.cpu_data(); // reshaped weight matrix
   Dtype* weight_buf_diff = weight_buffer_.mutable_cpu_diff(); // reshaped weight matrix diff
   caffe_set(M_ * K_, Dtype(0), weight_buf_diff);
 
@@ -219,6 +219,7 @@ void RecursiveOnceLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
       for (int n = 0; n < num_; ++n) {
         for (int g = 0; g < group_out_; ++g) {
           // top to tmp
+          caffe_set(M_*N_, Dtype(0.0), tmp_diff);
           int offset_ng = top[0]->offset(n) + top_offset * g;
           caffe_cpu_backfill(top_offset, top_diff + offset_ng,
                              mask + offset_ng, tmp_diff);
