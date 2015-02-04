@@ -1,4 +1,0 @@
-examples/ucf-101/compute_video_mean.cpp: In function ‘int main(int, char**)’:
-examples/ucf-101/compute_video_mean.cpp:88:7: warning: unused variable ‘size_in_datum’ [-Wunused-variable]
-   int size_in_datum = std::max<int>(datum.data().size(),
-       ^
