@@ -1,0 +1,54 @@
+In file included from ./include/caffe/layer.hpp:8:0,
+                 from src/caffe/layer_factory.cpp:3:
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = float]’:
+./include/caffe/vision_layers.hpp:67:27:   required from ‘caffe::ConvolutionLayer<Dtype>::ConvolutionLayer(const caffe::LayerParameter&) [with Dtype = float]’
+src/caffe/layer_factory.cpp:24:45:   required from ‘caffe::ConvolutionLayer<Dtype>* caffe::GetConvolutionLayer(const string&, const caffe::LayerParameter&) [with Dtype = float; std::string = std::basic_string<char>]’
+src/caffe/layer_factory.cpp:35:32:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<float>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<float>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = double]’:
+./include/caffe/vision_layers.hpp:67:27:   required from ‘caffe::ConvolutionLayer<Dtype>::ConvolutionLayer(const caffe::LayerParameter&) [with Dtype = double]’
+src/caffe/layer_factory.cpp:24:45:   required from ‘caffe::ConvolutionLayer<Dtype>* caffe::GetConvolutionLayer(const string&, const caffe::LayerParameter&) [with Dtype = double; std::string = std::basic_string<char>]’
+src/caffe/layer_factory.cpp:37:32:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<double>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<double>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = int]’:
+./include/caffe/vision_layers.hpp:470:27:   required from ‘caffe::PoolingLayer<Dtype>::PoolingLayer(const caffe::LayerParameter&) [with Dtype = float]’
+src/caffe/layer_factory.cpp:78:41:   required from ‘caffe::PoolingLayer<Dtype>* caffe::GetPoolingLayer(const string&, const caffe::LayerParameter&) [with Dtype = float; std::string = std::basic_string<char>]’
+src/caffe/layer_factory.cpp:89:32:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<int>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<int>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = unsigned int]’:
+./include/caffe/neuron_layers.hpp:170:33:   required from ‘caffe::DropoutLayer<Dtype>::DropoutLayer(const caffe::LayerParameter&) [with Dtype = float]’
+src/caffe/layer_factory.cpp:226:41:   required from ‘caffe::Layer<Dtype>* caffe::GetLayer(const caffe::LayerParameter&) [with Dtype = float]’
+src/caffe/layer_factory.cpp:290:60:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<unsigned int>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<unsigned int>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^

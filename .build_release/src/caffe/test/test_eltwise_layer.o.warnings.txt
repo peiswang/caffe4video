@@ -1,0 +1,40 @@
+In file included from src/caffe/test/test_eltwise_layer.cpp:6:0:
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = double]’:
+src/caffe/test/test_eltwise_layer.cpp:25:36:   required from ‘caffe::EltwiseLayerTest<TypeParam>::EltwiseLayerTest() [with TypeParam = caffe::DoubleCPU]’
+src/caffe/test/test_eltwise_layer.cpp:198:1:   required from ‘testing::Test* testing::internal::TestFactoryImpl<TestClass>::CreateTest() [with TestClass = caffe::EltwiseLayerTest_TestMaxGradient_Test<caffe::DoubleCPU>]’
+src/caffe/test/test_eltwise_layer.cpp:209:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<double>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<double>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = float]’:
+src/caffe/test/test_eltwise_layer.cpp:25:36:   required from ‘caffe::EltwiseLayerTest<TypeParam>::EltwiseLayerTest() [with TypeParam = caffe::FloatCPU]’
+src/caffe/test/test_eltwise_layer.cpp:198:1:   required from ‘testing::Test* testing::internal::TestFactoryImpl<TestClass>::CreateTest() [with TestClass = caffe::EltwiseLayerTest_TestMaxGradient_Test<caffe::FloatCPU>]’
+src/caffe/test/test_eltwise_layer.cpp:209:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<float>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<float>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = int]’:
+./include/caffe/common_layers.hpp:163:27:   required from ‘caffe::EltwiseLayer<Dtype>::EltwiseLayer(const caffe::LayerParameter&) [with Dtype = double]’
+src/caffe/test/test_eltwise_layer.cpp:203:40:   required from ‘void caffe::EltwiseLayerTest_TestMaxGradient_Test<gtest_TypeParam_>::TestBody() [with gtest_TypeParam_ = caffe::DoubleCPU]’
+src/caffe/test/test_eltwise_layer.cpp:209:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<int>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<int>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^

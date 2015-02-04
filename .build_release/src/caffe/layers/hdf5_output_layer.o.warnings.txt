@@ -1,0 +1,25 @@
+In file included from src/caffe/layers/hdf5_output_layer.cpp:6:0:
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = float]’:
+src/caffe/layers/hdf5_output_layer.cpp:17:55:   required from ‘caffe::HDF5OutputLayer<Dtype>::HDF5OutputLayer(const caffe::LayerParameter&) [with Dtype = float]’
+src/caffe/layers/hdf5_output_layer.cpp:72:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<float>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<float>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = double]’:
+src/caffe/layers/hdf5_output_layer.cpp:17:55:   required from ‘caffe::HDF5OutputLayer<Dtype>::HDF5OutputLayer(const caffe::LayerParameter&) [with Dtype = double]’
+src/caffe/layers/hdf5_output_layer.cpp:72:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<double>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<double>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^

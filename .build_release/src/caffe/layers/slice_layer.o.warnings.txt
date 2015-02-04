@@ -1,0 +1,26 @@
+In file included from ./include/caffe/layer.hpp:8:0,
+                 from src/caffe/layers/slice_layer.cpp:4:
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = float]’:
+./include/caffe/common_layers.hpp:458:27:   required from ‘caffe::SliceLayer<Dtype>::SliceLayer(const caffe::LayerParameter&) [with Dtype = float]’
+src/caffe/layers/slice_layer.cpp:139:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<float>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<float>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = double]’:
+./include/caffe/common_layers.hpp:458:27:   required from ‘caffe::SliceLayer<Dtype>::SliceLayer(const caffe::LayerParameter&) [with Dtype = double]’
+src/caffe/layers/slice_layer.cpp:139:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<double>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<double>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
