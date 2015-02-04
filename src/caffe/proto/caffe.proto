@@ -474,7 +474,7 @@ message RecursiveOnceParameter {
   repeated uint32 relative_position = 4;  // The stride
   optional uint32 stride = 5 [default = 1]; // The stride
   // Should have bias term ???
-  optional bool bias_term = 6 [default = false]; // whether to have bias terms
+  optional bool bias_term = 6 [default = true]; // whether to have bias terms
   optional FillerParameter weight_filler = 7; // The filler for the weight
   optional FillerParameter bias_filler = 8; // The filler for the bias
   enum Engine {
@@ -483,7 +483,6 @@ message RecursiveOnceParameter {
     CUDNN = 2;
   }
   optional Engine engine = 9 [default = DEFAULT];
-  optional bool correspond = 10 [default = true];
 }
 
 // Message that stores parameters used by DataLayer

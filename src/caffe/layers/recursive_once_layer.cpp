@@ -72,7 +72,7 @@ void RecursiveOnceLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
             1, 1, assemble_size_, vl_));
             //assemble_size_, num_uv_, 1, vector_length));
       shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
-          this->layer_param_.convolution_param().bias_filler()));
+          this->layer_param_.recursive_once_param().bias_filler()));
       bias_filler->Fill(this->blobs_[1].get());
     }
   }
@@ -86,8 +86,6 @@ void RecursiveOnceLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   num_ = bottom[0]->num();
   height_ = bottom[0]->height();
   width_ = bottom[0]->width();
-  CHECK_EQ(bottom[0]->channels(), channels_) << "Input size incompatible with"
-    " convolution kernel.";
   // TODO: generalize to handle inputs of different shapes.
   for (int bottom_id = 1; bottom_id < bottom.size(); ++bottom_id) {
     CHECK_EQ(num_, bottom[bottom_id]->num()) << "Inputs must have same num.";
@@ -105,7 +103,7 @@ void RecursiveOnceLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   //if(multi_weights_)
     max_idx_.Reshape(num_, vl_ * group_out_, height_, width_);
   // Prepare the matrix multiplication computation.
-  // Each input will be convolved as a single GEMM.
+  // Each input will be calculated as a single GEMM.
   M_ = assemble_size_ * vl_;
   K_ = across_ * vl_;
   N_ = height_ * width_;

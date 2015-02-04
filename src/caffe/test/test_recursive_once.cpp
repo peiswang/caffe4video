@@ -23,11 +23,14 @@ void caffe_recur(const Blob<Dtype>* in, RecursiveOnceParameter* param,
   int num_uv = param->num_uv();
   int assemble_size = param->assemble_size();
   int stride = param->stride();
-  int across = param->relative_position(num_uv) + 1;
+  int across = param->relative_position(num_uv-1) + 1;
   int out_group = (group - across) / stride + 1;
+
 
   int channels = in->channels();
   int vl = channels / group;
+
+  CHECK_EQ(out_group, out->channels()/vl);
 
   int height = in->height();
   int width = in->width();
@@ -45,7 +48,7 @@ void caffe_recur(const Blob<Dtype>* in, RecursiveOnceParameter* param,
       for (int v = 0; v < vl; ++v) {
         for (int y = 0; y < height; ++y) {
           for (int x = 0; x < width; ++x) {
-            out_data[out->offset(n, g*vl+v, y, x)] = -100000;
+            out_data[out->offset(n, g*vl+v, y, x)] = -1000;
 
             for(int as = 0; as < assemble_size; ++as) {
               Dtype tmp = 0.0;
@@ -72,16 +75,16 @@ void caffe_recur(const Blob<Dtype>* in, RecursiveOnceParameter* param,
   
 }
 
-template void caffe_recur(const Blob<float>* in, 
-    RecursiveOnceParameter* recur_param,
-    const vector<shared_ptr<Blob<float> > >& weights,
-    Blob<float> * out); 
-
-
-template void caffe_recur(const Blob<double>* in, 
-    RecursiveOnceParameter* recur_param,
-    const vector<shared_ptr<Blob<double> > >& weights,
-    Blob<double> * out); 
+//template void caffe_recur(const Blob<float>* in, 
+//    RecursiveOnceParameter* recur_param,
+//    const vector<shared_ptr<Blob<float> > >& weights,
+//    Blob<float> * out); 
+//
+//
+//template void caffe_recur(const Blob<double>* in, 
+//    RecursiveOnceParameter* recur_param,
+//    const vector<shared_ptr<Blob<double> > >& weights,
+//    Blob<double> * out); 
 
 template <typename TypeParam>
 class RecursiveOnceTest : public MultiDeviceTest<TypeParam> {
@@ -91,7 +94,7 @@ protected:
 	// num: 1
 	// channels: 5x10 ( frames x feature maps )
 	// height, width = 10, 10
-	: blob_bottom_(new Blob<Dtype>(1, 64, 3, 3)), 
+	: blob_bottom_(new Blob<Dtype>(1, 96, 5, 5)), 
 	  blob_top_(new Blob<Dtype>())
   {}
   virtual void SetUp() {
@@ -147,63 +150,76 @@ TYPED_TEST(RecursiveOnceTest, TestSetup) {
     new RecursiveOnceLayer<Dtype>(layer_param));
   layer->SetUp(this->blob_bottom_vec_, &(this->blob_top_vec_));
   EXPECT_EQ(this->blob_top_->num(), 1);
-  EXPECT_EQ(this->blob_top_->channels(), 32);
-  EXPECT_EQ(this->blob_top_->height(), 3);
-  EXPECT_EQ(this->blob_top_->width(), 3);
+  EXPECT_EQ(this->blob_top_->channels(), 48);
+  EXPECT_EQ(this->blob_top_->height(), 5);
+  EXPECT_EQ(this->blob_top_->width(), 5);
 }
 
-TYPED_TEST(RecursiveOnceTest, TestRecursive) {
+TYPED_TEST(RecursiveOnceTest, TestForward) {
   typedef typename TypeParam::Dtype Dtype;
   LayerParameter layer_param;
   RecursiveOnceParameter* recursive_once_param = 
     layer_param.mutable_recursive_once_param();
-  recursive_once_param->set_assemble_size(3); //2
+
+  recursive_once_param->set_group(8);
+  recursive_once_param->set_assemble_size(3); //4
   recursive_once_param->set_stride(2);
   recursive_once_param->set_num_uv(2);
-  recursive_once_param->set_group(8); 
-  recursive_once_param->set_bias_term(true); 
   recursive_once_param->add_relative_position(0);
   recursive_once_param->add_relative_position(1);
+  //recursive_once_param->add_relative_position(3);
+
+  recursive_once_param->set_bias_term(false); 
+
+  recursive_once_param->mutable_weight_filler()->set_type("gaussian");
+  recursive_once_param->mutable_bias_filler()->set_type("constant");
+  recursive_once_param->mutable_bias_filler()->set_value(0.1);
 
   shared_ptr<Layer<Dtype> > layer (
     new RecursiveOnceLayer<Dtype>(layer_param));
+
   layer->SetUp(this->blob_bottom_vec_, &(this->blob_top_vec_));
-  layer->Forward(this->blob_bottom_vec_, &(this->blob_top_vec_));
 
   const Dtype* top_data;
   const Dtype* ref_top_data;
   caffe_recur(this->blob_bottom_, recursive_once_param, layer->blobs(),
                   this->MakeReferenceTop(this->blob_top_));
-  top_data = this->blob_top_->cpu_data();
   ref_top_data = this->ref_blob_top_->cpu_data();
+
+  layer->Forward(this->blob_bottom_vec_, &(this->blob_top_vec_));
+  top_data = this->blob_top_->cpu_data();
+
   for (int i = 0; i < this->blob_top_->count(); ++i) {
     EXPECT_NEAR(top_data[i], ref_top_data[i], 1e-4);
   }
   
 }
 
-TYPED_TEST(RecursiveOnceTest, TestGradient) {
-  typedef typename TypeParam::Dtype Dtype;
-  LayerParameter layer_param;
-  RecursiveOnceParameter* recursive_once_param = 
-  	layer_param.mutable_recursive_once_param();
+//TYPED_TEST(RecursiveOnceTest, TestGradient) {
+//  typedef typename TypeParam::Dtype Dtype;
+//  LayerParameter layer_param;
+//  RecursiveOnceParameter* recursive_once_param = 
+//  	layer_param.mutable_recursive_once_param();
+//
+//  recursive_once_param->set_group(8);
+//  recursive_once_param->set_assemble_size(3); //4
+//  recursive_once_param->set_stride(4);
+//  recursive_once_param->set_num_uv(3);
+//  recursive_once_param->add_relative_position(0);
+//  recursive_once_param->add_relative_position(2);
+//  recursive_once_param->add_relative_position(3);
+//  //recursive_once_param->set_bias_term(true); 
+//  recursive_once_param->mutable_weight_filler()->set_type("gaussian");
+//  //recursive_once_param->mutable_bias_filler()->set_type("gaussian");
+//  RecursiveOnceLayer<Dtype> layer(layer_param);
+//  GradientChecker<Dtype> checker(1e-2, 1e-3);
+//  checker.CheckGradientExhaustive(&layer, &(this->blob_bottom_vec_),
+//      &(this->blob_top_vec_));
+//}
 
-  recursive_once_param->set_group(8);
-  recursive_once_param->set_assemble_size(3); //4
-  recursive_once_param->set_stride(4);
-  recursive_once_param->set_num_uv(3);
-  recursive_once_param->add_relative_position(0);
-  recursive_once_param->add_relative_position(2);
-  recursive_once_param->add_relative_position(3);
-  //recursive_once_param->set_bias_term(true); 
-  recursive_once_param->mutable_weight_filler()->set_type("gaussian");
-  //recursive_once_param->mutable_bias_filler()->set_type("gaussian");
-  RecursiveOnceLayer<Dtype> layer(layer_param);
-  GradientChecker<Dtype> checker(1e-2, 1e-3);
-  checker.CheckGradientExhaustive(&layer, &(this->blob_bottom_vec_),
-      &(this->blob_top_vec_));
-  }
- }
+
+
+}
 
 
 
