@@ -34,6 +34,14 @@ void caffe_cpu_backfill(const int N, const Dtype* x,
 // added by sxyu
 template <typename Dtype>
 void caffe_cal_norm(const int N, const Dtype* x, Dtype &norm, int incre);
+<<<<<<< HEAD
+=======
+
+
+
+=======
+>>>>>>> upstream/master
+>>>>>>> upstream/master
 
 template <typename Dtype>
 void caffe_axpy(const int N, const Dtype alpha, const Dtype* X,

@@ -84,7 +84,11 @@ void caffe_conv(const Blob<Dtype>* in, MultiConvolutionParameter* conv_param,
       for (int o = 0; o < out->channels(); o++) {
         for (int y = 0; y < out->height(); y++) {
           for (int x = 0; x < out->width(); x++) {
+<<<<<<< HEAD
             out_data[out->offset(n, o, y, x)] += bias_data[o % (out->channels()/groups)];
+=======
+            out_data[out->offset(n, o, y, x)] += bias_data[o % groups];
+>>>>>>> upstream/master
           }
         }
       }
@@ -93,12 +97,20 @@ void caffe_conv(const Blob<Dtype>* in, MultiConvolutionParameter* conv_param,
 }
 
 template void caffe_conv(const Blob<float>* in,
+<<<<<<< HEAD
     MultiConvolutionParameter* conv_param,
     const vector<shared_ptr<Blob<float> > >& weights,
     Blob<float>* out);
 
 template void caffe_conv(const Blob<double>* in,
     MultiConvolutionParameter* conv_param,
+=======
+    ConvolutionParameter* conv_param,
+    const vector<shared_ptr<Blob<float> > >& weights,
+    Blob<float>* out);
+template void caffe_conv(const Blob<double>* in,
+    ConvolutionParameter* conv_param,
+>>>>>>> upstream/master
     const vector<shared_ptr<Blob<double> > >& weights,
     Blob<double>* out);
 
@@ -108,8 +120,13 @@ class MultiConvolutionLayerTest : public MultiDeviceTest<TypeParam> {
 
  protected:
   MultiConvolutionLayerTest()
+<<<<<<< HEAD
       : blob_bottom_(new Blob<Dtype>(2, 3*6, 6, 6)), // 3x5
         blob_bottom_2_(new Blob<Dtype>(2, 3*6, 6, 6)),
+=======
+      : blob_bottom_(new Blob<Dtype>(2, 3*5, 6, 4)), // 3x5
+        blob_bottom_2_(new Blob<Dtype>(2, 3*5, 6, 4)),
+>>>>>>> upstream/master
         blob_top_(new Blob<Dtype>()),
         blob_top_2_(new Blob<Dtype>()) {}
   virtual void SetUp() {
@@ -123,7 +140,11 @@ class MultiConvolutionLayerTest : public MultiDeviceTest<TypeParam> {
     blob_top_vec_.push_back(blob_top_);
   }
 
+<<<<<<< HEAD
   virtual ~MultiConvolutionLayerTest() {
+=======
+  virtual ~ConvolutionLayerTest() {
+>>>>>>> upstream/master
     delete blob_bottom_;
     delete blob_bottom_2_;
     delete blob_top_;
@@ -158,8 +179,13 @@ TYPED_TEST(MultiConvolutionLayerTest, TestSetup) {
 
   convolution_param->set_kernel_size(3);
   convolution_param->set_stride(2);
+<<<<<<< HEAD
   convolution_param->set_num_output(4*6);
   convolution_param->set_group(6);
+=======
+  convolution_param->set_num_output(4*5);
+  convolution_param->set_group(5);
+>>>>>>> upstream/master
 
   this->blob_bottom_vec_.push_back(this->blob_bottom_2_);
   this->blob_top_vec_.push_back(this->blob_top_2_);
@@ -169,6 +195,7 @@ TYPED_TEST(MultiConvolutionLayerTest, TestSetup) {
 
   layer->SetUp(this->blob_bottom_vec_, &(this->blob_top_vec_));
   EXPECT_EQ(this->blob_top_->num(), 2);
+<<<<<<< HEAD
   EXPECT_EQ(this->blob_top_->channels(), 4*6);
   EXPECT_EQ(this->blob_top_->height(), 2);
   EXPECT_EQ(this->blob_top_->width(), 2);
@@ -176,6 +203,15 @@ TYPED_TEST(MultiConvolutionLayerTest, TestSetup) {
   EXPECT_EQ(this->blob_top_2_->channels(), 4*6);
   EXPECT_EQ(this->blob_top_2_->height(), 2);
   EXPECT_EQ(this->blob_top_2_->width(), 2);
+=======
+  EXPECT_EQ(this->blob_top_->channels(), 4*5);
+  EXPECT_EQ(this->blob_top_->height(), 2);
+  EXPECT_EQ(this->blob_top_->width(), 1);
+  EXPECT_EQ(this->blob_top_2_->num(), 2);
+  EXPECT_EQ(this->blob_top_2_->channels(), 4*5);
+  EXPECT_EQ(this->blob_top_2_->height(), 2);
+  EXPECT_EQ(this->blob_top_2_->width(), 1);
+>>>>>>> upstream/master
 
 }
 
@@ -187,12 +223,20 @@ TYPED_TEST(MultiConvolutionLayerTest, TestSimpleMultiConvolutionGroup) {
       layer_param.mutable_multi_convolution_param();
   convolution_param->set_kernel_size(3);
   convolution_param->set_stride(2);
+<<<<<<< HEAD
   convolution_param->set_num_output(4*6);
   convolution_param->set_group(6);
   convolution_param->mutable_weight_filler()->set_type("gaussian");
   convolution_param->mutable_bias_filler()->set_type("gaussian");
   //convolution_param->mutable_bias_filler()->set_type("constant");
   //convolution_param->mutable_bias_filler()->set_value(0.2);
+=======
+  convolution_param->set_num_output(4*5);
+  convolution_param->set_group(5);
+  convolution_param->mutable_weight_filler()->set_type("gaussian");
+  convolution_param->mutable_bias_filler()->set_type("constant");
+  convolution_param->mutable_bias_filler()->set_value(0.1);
+>>>>>>> upstream/master
   shared_ptr<Layer<Dtype> > layer(
       new MultiConvolutionLayer<Dtype>(layer_param));
   layer->SetUp(this->blob_bottom_vec_, &(this->blob_top_vec_));
@@ -205,7 +249,11 @@ TYPED_TEST(MultiConvolutionLayerTest, TestSimpleMultiConvolutionGroup) {
   top_data = this->blob_top_->cpu_data();
   ref_top_data = this->ref_blob_top_->cpu_data();
   for (int i = 0; i < this->blob_top_->count(); ++i) {
+<<<<<<< HEAD
     EXPECT_NEAR(top_data[i], ref_top_data[i], 1e-4)<<i;
+=======
+    EXPECT_NEAR(top_data[i], ref_top_data[i], 1e-4);
+>>>>>>> upstream/master
   }
 }
 
@@ -217,14 +265,25 @@ TYPED_TEST(MultiConvolutionLayerTest, TestGradientGroup) {
       layer_param.mutable_multi_convolution_param();
   convolution_param->set_kernel_size(3);
   convolution_param->set_stride(2);
+<<<<<<< HEAD
   convolution_param->set_num_output(4*6);
   convolution_param->set_group(6);
   convolution_param->mutable_weight_filler()->set_type("gaussian");
   convolution_param->mutable_bias_filler()->set_type("gaussian");
   MultiConvolutionLayer<Dtype> layer(layer_param);
+=======
+  convolution_param->set_num_output(4*5);
+  convolution_param->set_group(5);
+  convolution_param->mutable_weight_filler()->set_type("gaussian");
+  convolution_param->mutable_bias_filler()->set_type("gaussian");
+  ConvolutionLayer<Dtype> layer(layer_param);
+>>>>>>> upstream/master
   GradientChecker<Dtype> checker(1e-2, 1e-3);
   checker.CheckGradientExhaustive(&layer, &(this->blob_bottom_vec_),
       &(this->blob_top_vec_));
 }
 
+<<<<<<< HEAD
 }
+=======
+>>>>>>> upstream/master
