@@ -1,0 +1,12 @@
+In file included from tools/dump_network.cpp:17:0:
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = float]’:
+tools/dump_network.cpp:41:55:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<float>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<float>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^

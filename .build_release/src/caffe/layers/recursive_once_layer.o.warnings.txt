@@ -1,0 +1,46 @@
+src/caffe/layers/recursive_once_layer.cpp: In instantiation of ‘void caffe::RecursiveOnceLayer<Dtype>::Backward_cpu(const std::vector<caffe::Blob<Dtype>*>&, const std::vector<bool>&, std::vector<caffe::Blob<Dtype>*>*) [with Dtype = float]’:
+src/caffe/layers/recursive_once_layer.cpp:275:1:   required from here
+src/caffe/layers/recursive_once_layer.cpp:217:61: warning: suggest parentheses around ‘&&’ within ‘||’ [-Wparentheses]
+     if (this->param_propagate_down_[0] || propagate_down[i] || 
+                                                             ^
+src/caffe/layers/recursive_once_layer.cpp: In instantiation of ‘void caffe::RecursiveOnceLayer<Dtype>::Backward_cpu(const std::vector<caffe::Blob<Dtype>*>&, const std::vector<bool>&, std::vector<caffe::Blob<Dtype>*>*) [with Dtype = double]’:
+src/caffe/layers/recursive_once_layer.cpp:275:1:   required from here
+src/caffe/layers/recursive_once_layer.cpp:217:61: warning: suggest parentheses around ‘&&’ within ‘||’ [-Wparentheses]
+In file included from ./include/caffe/filler.hpp:10:0,
+                 from src/caffe/layers/recursive_once_layer.cpp:3:
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = float]’:
+./include/caffe/vision_layers.hpp:285:27:   required from ‘caffe::RecursiveOnceLayer<Dtype>::RecursiveOnceLayer(const caffe::LayerParameter&) [with Dtype = float]’
+src/caffe/layers/recursive_once_layer.cpp:275:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<float>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<float>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = int]’:
+./include/caffe/vision_layers.hpp:285:27:   required from ‘caffe::RecursiveOnceLayer<Dtype>::RecursiveOnceLayer(const caffe::LayerParameter&) [with Dtype = float]’
+src/caffe/layers/recursive_once_layer.cpp:275:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<int>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<int>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = double]’:
+./include/caffe/vision_layers.hpp:285:27:   required from ‘caffe::RecursiveOnceLayer<Dtype>::RecursiveOnceLayer(const caffe::LayerParameter&) [with Dtype = double]’
+src/caffe/layers/recursive_once_layer.cpp:275:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<double>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<double>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^

@@ -1,0 +1,43 @@
+src/caffe/test/test_gradient_based_solver.cpp: In member function ‘virtual void caffe::SGDSolverTest_TestLeastSquaresUpdate_Test<gtest_TypeParam_>::TestBody()’:
+src/caffe/test/test_gradient_based_solver.cpp:326:37: warning: typedef ‘Dtype’ locally defined but not used [-Wunused-local-typedefs]
+   typedef typename TypeParam::Dtype Dtype;
+                                     ^
+src/caffe/test/test_gradient_based_solver.cpp: In member function ‘virtual void caffe::AdaGradSolverTest_TestAdaGradLeastSquaresUpdate_Test<gtest_TypeParam_>::TestBody()’:
+src/caffe/test/test_gradient_based_solver.cpp:393:37: warning: typedef ‘Dtype’ locally defined but not used [-Wunused-local-typedefs]
+   typedef typename TypeParam::Dtype Dtype;
+                                     ^
+src/caffe/test/test_gradient_based_solver.cpp: In member function ‘virtual void caffe::NesterovSolverTest_TestNesterovLeastSquaresUpdate_Test<gtest_TypeParam_>::TestBody()’:
+src/caffe/test/test_gradient_based_solver.cpp:438:37: warning: typedef ‘Dtype’ locally defined but not used [-Wunused-local-typedefs]
+   typedef typename TypeParam::Dtype Dtype;
+                                     ^
+In file included from ./include/caffe/net.hpp:10:0,
+                 from ./include/caffe/solver.hpp:7,
+                 from src/caffe/test/test_gradient_based_solver.cpp:12:
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = double]’:
+src/caffe/test/test_gradient_based_solver.cpp:155:7:   required from ‘void caffe::GradientBasedSolverTest<TypeParam>::ComputeLeastSquaresUpdate(caffe::GradientBasedSolverTest<TypeParam>::Dtype, caffe::GradientBasedSolverTest<TypeParam>::Dtype, caffe::GradientBasedSolverTest<TypeParam>::Dtype, std::vector<boost::shared_ptr<caffe::Blob<typename TypeParam::Dtype> > >*) [with TypeParam = caffe::DoubleCPU; caffe::GradientBasedSolverTest<TypeParam>::Dtype = double; typename TypeParam::Dtype = double]’
+src/caffe/test/test_gradient_based_solver.cpp:297:46:   required from ‘void caffe::GradientBasedSolverTest<TypeParam>::TestLeastSquaresUpdate(caffe::GradientBasedSolverTest<TypeParam>::Dtype, caffe::GradientBasedSolverTest<TypeParam>::Dtype, caffe::GradientBasedSolverTest<TypeParam>::Dtype, int) [with TypeParam = caffe::DoubleCPU; caffe::GradientBasedSolverTest<TypeParam>::Dtype = double]’
+src/caffe/test/test_gradient_based_solver.cpp:484:5:   required from ‘void caffe::NesterovSolverTest_TestNesterovLeastSquaresUpdateWithEverything_Test<gtest_TypeParam_>::TestBody() [with gtest_TypeParam_ = caffe::DoubleCPU]’
+src/caffe/test/test_gradient_based_solver.cpp:488:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<double>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<double>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = float]’:
+src/caffe/test/test_gradient_based_solver.cpp:155:7:   required from ‘void caffe::GradientBasedSolverTest<TypeParam>::ComputeLeastSquaresUpdate(caffe::GradientBasedSolverTest<TypeParam>::Dtype, caffe::GradientBasedSolverTest<TypeParam>::Dtype, caffe::GradientBasedSolverTest<TypeParam>::Dtype, std::vector<boost::shared_ptr<caffe::Blob<typename TypeParam::Dtype> > >*) [with TypeParam = caffe::FloatCPU; caffe::GradientBasedSolverTest<TypeParam>::Dtype = float; typename TypeParam::Dtype = float]’
+src/caffe/test/test_gradient_based_solver.cpp:297:46:   required from ‘void caffe::GradientBasedSolverTest<TypeParam>::TestLeastSquaresUpdate(caffe::GradientBasedSolverTest<TypeParam>::Dtype, caffe::GradientBasedSolverTest<TypeParam>::Dtype, caffe::GradientBasedSolverTest<TypeParam>::Dtype, int) [with TypeParam = caffe::FloatCPU; caffe::GradientBasedSolverTest<TypeParam>::Dtype = float]’
+src/caffe/test/test_gradient_based_solver.cpp:484:5:   required from ‘void caffe::NesterovSolverTest_TestNesterovLeastSquaresUpdateWithEverything_Test<gtest_TypeParam_>::TestBody() [with gtest_TypeParam_ = caffe::FloatCPU]’
+src/caffe/test/test_gradient_based_solver.cpp:488:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<float>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<float>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^

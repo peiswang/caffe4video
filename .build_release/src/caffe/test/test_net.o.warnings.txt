@@ -1,0 +1,26 @@
+In file included from ./include/caffe/filler.hpp:10:0,
+                 from src/caffe/test/test_net.cpp:10:
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = double]’:
+src/caffe/test/test_net.cpp:40:7:   required from ‘void caffe::NetTest<TypeParam>::CopyNetBlobs(bool, std::vector<boost::shared_ptr<caffe::Blob<typename TypeParam::Dtype> > >*) [with TypeParam = caffe::DoubleCPU; typename TypeParam::Dtype = double]’
+src/caffe/test/test_net.cpp:2152:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<double>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<double>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
+./include/caffe/blob.hpp: In instantiation of ‘caffe::Blob<Dtype>::Blob(bool) [with Dtype = float]’:
+src/caffe/test/test_net.cpp:40:7:   required from ‘void caffe::NetTest<TypeParam>::CopyNetBlobs(bool, std::vector<boost::shared_ptr<caffe::Blob<typename TypeParam::Dtype> > >*) [with TypeParam = caffe::FloatCPU; typename TypeParam::Dtype = float]’
+src/caffe/test/test_net.cpp:2152:1:   required from here
+./include/caffe/blob.hpp:152:7: warning: ‘caffe::Blob<float>::capacity_’ will be initialized after [-Wreorder]
+   int capacity_;
+       ^
+./include/caffe/blob.hpp:145:8: warning:   ‘bool caffe::Blob<float>::need_acum_’ [-Wreorder]
+   bool need_acum_;
+        ^
+./include/caffe/blob.hpp:21:3: warning:   when initialized here [-Wreorder]
+   Blob(bool need_acum=false)
+   ^
