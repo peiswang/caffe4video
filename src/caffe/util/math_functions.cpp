@@ -64,11 +64,24 @@ void caffe_cpu_backfill<double>(const int N, const double* x,
     A[index[i]*N+i] = x[i];
   }
 }
-//template <typename Dtype>
-//void caffe_cpu_backfill(const int N, const Dtype* x,
-//                const int* index, Dtype* A) {
+
+// used when test mean-out
+// uncomment to test mean-out for gradient check (?)
+//template <>
+//void caffe_cpu_backfill<float>(const int N, const float* x,
+//                const int* index, float* A) {
 //  for (int i = 0; i < N; ++i) {
-//    A[index[i]*N+i] = x[i];
+//    for(int j=0;j<=index[0];j++)
+//    A[j*N+i] = x[i] / (index[0]+1);
+//  }
+//}
+//
+//template <>
+//void caffe_cpu_backfill<double>(const int N, const double* x,
+//                const int* index, double* A) {
+//  for (int i = 0; i < N; ++i) {
+//    for(int j=0;j<=index[0];j++)
+//    A[j*N+i] = x[i] / (index[0]+1);
 //  }
 //}
 
@@ -235,6 +248,30 @@ void caffe_vimax<double>(const int n, double* tmp_max, int* tmp_max_index,
     }
   }
 }
+
+// used when test mean-out
+// uncomment to test mean-out for gradient check (?)
+//template <>
+//void caffe_vimax<float>(const int n, float* tmp_max, int* tmp_max_index,
+//                const float* new_value, const int new_index) {
+//  for (int i=0;i<n;++i) {
+//  //  if (new_value[i]>tmp_max[i]) {
+//      tmp_max[i] += new_value[i];
+//      tmp_max_index[i] = new_index;
+//   // }
+//  }
+//}
+//
+//template <>
+//void caffe_vimax<double>(const int n, double* tmp_max, int* tmp_max_index,
+//                const double* new_value, const int new_index) {
+//  for (int i=0;i<n;++i) {
+//    //if (new_value[i]>tmp_max[i]) {
+//      tmp_max[i] += new_value[i];
+//      tmp_max_index[i] = new_index;
+//    //}
+//  }
+//}
 
 template <>
 void caffe_powx<float>(const int n, const float* a, const float b,

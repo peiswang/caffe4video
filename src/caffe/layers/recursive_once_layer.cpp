@@ -72,7 +72,7 @@ void RecursiveOnceLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
             1, 1, assemble_size_, vl_));
             //assemble_size_, num_uv_, 1, vector_length));
       shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
-          this->layer_param_.recursive_once_param().bias_filler()));
+            recursive_once_param.bias_filler()));
       bias_filler->Fill(this->blobs_[1].get());
     }
   }
@@ -172,6 +172,9 @@ void RecursiveOnceLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
           for (int nid = 1; nid < assemble_size_; ++nid) {
             caffe_vimax(top_offset, top_data_ng, mask_ng, out_data + top_offset * nid, nid);
           }
+          // uncomment to test mean-out for gradient check (?)
+          //for(int sdf=0;sdf<top_offset;sdf++)
+          //        top_data_ng[sdf] /= assemble_size_;
         }
       }
     }
