@@ -8,7 +8,6 @@
 
 namespace caffe {
 
-/// @brief refer to CPU forward -- the BLAS implementation is the same.
 template <typename Dtype>
 void MultiConvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       vector<Blob<Dtype>*>* top) {
@@ -17,9 +16,9 @@ void MultiConvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& botto
     Dtype* top_data = (*top)[i]->mutable_gpu_data();
     Dtype* col_data = col_buffer_.mutable_gpu_data();
     const Dtype* weight = this->blobs_[0]->gpu_data();
-    //int weight_offset = M_ * K_;
-    int col_offset = K_ * N_;
-    int top_offset = M_ * N_;
+    //int weight_offset = M_ * K_;  // number of filter parameters in a group
+    int col_offset = K_ * N_;  // number of values in an input region / column
+    int top_offset = M_ * N_;  // number of values in an output region / column
     for (int n = 0; n < num_; ++n) {
       // im2col transformation: unroll input regions for filtering
       // into column matrix for multplication.
@@ -29,6 +28,7 @@ void MultiConvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& botto
       // Take inner products for groups.
       for (int g = 0; g < group_; ++g) {
         caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_, K_,
+          //(Dtype)1., weight + weight_offset * g, col_data + col_offset * g,
           (Dtype)1., weight, col_data + col_offset * g,
           (Dtype)0., top_data + (*top)[i]->offset(n) + top_offset * g);
         // Add bias.
@@ -43,7 +43,6 @@ void MultiConvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& botto
   }
 }
 
-/// @brief refer to CPU backward -- the BLAS implementation is the same.
 template <typename Dtype>
 void MultiConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, vector<Blob<Dtype>*>* bottom) {
@@ -52,16 +51,16 @@ void MultiConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
   if (this->param_propagate_down_[0]) {
     weight = this->blobs_[0]->gpu_data();
     weight_diff = this->blobs_[0]->mutable_gpu_diff();
-    caffe_gpu_set(this->blobs_[0]->count(), Dtype(0), weight_diff);
+    caffe_set(this->blobs_[0]->count(), Dtype(0), weight_diff);
   }
   Dtype* bias_diff = NULL;
   if (bias_term_ && this->param_propagate_down_[1]) {
     bias_diff = this->blobs_[1]->mutable_gpu_diff();
-    caffe_gpu_set(this->blobs_[1]->count(), Dtype(0), bias_diff);
+    caffe_set(this->blobs_[1]->count(), Dtype(0), bias_diff);
   }
-  //const int weight_offset = M_ * K_;
-  const int col_offset = K_ * N_;
-  const int top_offset = M_ * N_;
+  //const int weight_offset = M_ * K_; // A: all kernel size in a group
+  const int col_offset = K_ * N_;  // B: group size
+  const int top_offset = M_ * N_;  // C 
   for (int i = 0; i < top.size(); ++i) {
     const Dtype* top_diff = NULL;
     // Bias gradient, if necessary.
@@ -69,8 +68,8 @@ void MultiConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
       top_diff = top[i]->gpu_diff();
       for (int n = 0; n < num_; ++n) {
         for (int g = 0; g < group_; ++g) {
-            caffe_gpu_gemv<Dtype>(CblasNoTrans, M_, N_,
-                1., top_diff + top[0]->offset(n),
+          caffe_gpu_gemv<Dtype>(CblasNoTrans, M_, N_,
+                1., top_diff + top[0]->offset(n) + top_offset * g,
                 bias_multiplier_.gpu_data(), 1.,
                 bias_diff);
         }
@@ -99,7 +98,7 @@ void MultiConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
                 weight_diff);
           }
         }
-        // gradient w.r.t. bottom data, if necessary
+        // gradient w.r.t. bottom data, if necessary.
         if (propagate_down[i]) {
           if (weight == NULL) {
             weight = this->blobs_[0]->gpu_data();
@@ -112,14 +111,13 @@ void MultiConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
           }
           // col2im back to the data
           col2im_gpu(col_diff, channels_, height_, width_,
-              kernel_h_, kernel_w_, pad_h_, pad_w_, stride_h_, stride_w_,
-              bottom_diff + (*bottom)[i]->offset(n));
+              kernel_h_, kernel_w_, pad_h_, pad_w_,
+              stride_h_, stride_w_, bottom_diff + (*bottom)[i]->offset(n));
         }
       }
     }
   }
 }
-
 
 INSTANTIATE_CLASS(MultiConvolutionLayer);
 
