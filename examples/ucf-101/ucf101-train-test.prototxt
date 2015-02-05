@@ -5,13 +5,16 @@ layers {
   top: "data"
   top: "label"
   data_param {
-    source: "examples/ucf-101/rnn_train_lmdb"
+    source: "examples/ucf-101/ucf101_train_lmdb"
     backend: LMDB
-    batch_size: 30
+    batch_size: 16
   } 
   transform_param {
-    crop_size: 227
-    mean_file: "examples/ucf-101/rnn_mean.binaryproto"
+    is_video: true
+    video_crop_size_t: 32
+    video_crop_size_h: 227
+    video_crop_size_w: 227
+    mean_file: "examples/ucf-101/ucf101_mean.binaryproto"
     mirror: true
   }
   include: { phrase: TRAIN }
@@ -23,13 +26,16 @@ layers {
   top: "data"
   top: "label"
   data_param {
-    source: "examples/ucf-101/rnn_test_lmdb"
+    source: "examples/ucf-101/ucf101_test_lmdb"
     backend: LMDB
-    batch_size: 30
+    batch_size: 32
   }
   transform_param {
-    crop_size: 227
-    mean_file: "examples/ucf-101/rnn_mean.binaryproto"
+    is_video: true
+    video_crop_size_t: 32
+    video_crop_size_h: 227
+    video_crop_size_w: 227
+    mean_file: "examples/ucf-101/ucf101_mean.binaryproto"
     mirror: false 
   }
   include: { phrase: TEST }
@@ -44,8 +50,9 @@ layers {
   blobs_lr: 2
   weight_decay: 1
   weight_decay: 0
-  convolution_param {
-    num_output: 96
+  multi_convolution_param {
+    num_output: 3456 
+    group: 36
     kernel_size: 11
     stride: 4
     weight_filler {
@@ -90,23 +97,21 @@ layers {
   }
 }
 
-
-
 layers {
-  name: "rnn1"
-  type: RecursiveOnce
+  name: "r1"
+  type: RECURSIVE_ONCE
   bottom: "norm1"
-  top: "rnn1"
+  top: "r1"
   blobs_lr: 1
   blobs_lr: 2
   weight_decay: 1
   weight_decay: 0
   recursive_once_param {
-    group: 22
+    group: 36
     relative_position: 0
     relative_position: 1
     num_uv: 2
-    assemble_size: 2
+    assemble_size: 5
     stride: 2
     weight_filler {
       type: "gaussian"
@@ -114,28 +119,28 @@ layers {
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0
     }
   }
-  param: "rnn1_w"
-  param: "rnn1_b"
+  param: "rnn_first_w"
+  param: "rnn_first_b"
 }
 
 layers {
-  name: "rnn2"
-  type: RecursiveOnce
-  bottom: "rnn1"
-  top: "rnn2"
+  name: "r2"
+  type: RECURSIVE_ONCE
+  bottom: "r1"
+  top: "r2"
   blobs_lr: 1
   blobs_lr: 2
   weight_decay: 1
   weight_decay: 0
   recursive_once_param {
-    group: 11
+    group: 18
     relative_position: 0
     relative_position: 1
     num_uv: 2
-    assemble_size: 2
+    assemble_size: 5
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -143,28 +148,28 @@ layers {
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0
     }
   }
-  param: "rnn1_w"
-  param: "rnn1_b"
+  param: "rnn_first_w"
+  param: "rnn_first_b"
 }
 
 layers {
-  name: "rnn3"
-  type: RecursiveOnce
-  bottom: "rnn2"
-  top: "rnn3"
+  name: "r3"
+  type: RECURSIVE_ONCE
+  bottom: "r2"
+  top: "r3"
   blobs_lr: 1
   blobs_lr: 2
   weight_decay: 1
   weight_decay: 0
   recursive_once_param {
-    group: 10
+    group: 17
     relative_position: 0
     relative_position: 2
-    num_uv: 3
-    assemble_size: 2
+    num_uv: 2
+    assemble_size: 5
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -172,37 +177,38 @@ layers {
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0
     }
   }
-  param: "rnn1_w"
-  param: "rnn1_b"
+  param: "rnn_first_w"
+  param: "rnn_first_b"
 }
 
 layers {
   name: "conv2"
   type: MULTICONVOLUTION
-  bottom: "rnn3"
+  bottom: "r3"
   top: "conv2"
   blobs_lr: 1
   blobs_lr: 2
   weight_decay: 1
   weight_decay: 0
-  convolution_param {
-    num_output: 256
+  multi_convolution_param {
+    num_output: 3840
+    group: 15
     pad: 2
     kernel_size: 5
-    group: 2
     weight_filler {
       type: "gaussian"
       std: 0.01
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0
     }
   }
 }
+
 layers {
   name: "relu2"
   type: RELU
@@ -234,78 +240,20 @@ layers {
 
 
 layers {
-  name: "rnn4"
-  type: RecursiveOnce
+  name: "r4"
+  type: RECURSIVE_ONCE
   bottom: "norm2"
-  top: "rnn4"
+  top: "r4"
   blobs_lr: 1
   blobs_lr: 2
   weight_decay: 1
   weight_decay: 0
   recursive_once_param {
-    group: 8
+    group: 15
+    num_uv: 2
     relative_position: 0
     relative_position: 1
-    num_uv: 2
-    assemble_size: 2
-    stride: 2
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 1
-    }
-  }
-  param: "rnn2_w"
-  param: "rnn2_b"  
-}
-
-layers {
-  name: "rnn5"
-  type: RecursiveOnce
-  bottom: "rnn4"
-  top: "rnn5"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  recursive_once_param {
-    group: 4
-    relative_position: 0
-    relative_position: 1
-    num_uv: 2
-    assemble_size: 2
-    stride: 2
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 1
-    }
-  }
-  param: "rnn2_w"
-  param: "rnn2_b"  
-}
-
-layers {
-  name: "rnn6"
-  type: RecursiveOnce
-  bottom: "rnn5"
-  top: "rnn6"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  recursive_once_param {
-    group: 2
-    relative_position: 0
-    relative_position: 1
-    num_uv: 2
-    assemble_size: 2
+    assemble_size: 5
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -313,24 +261,83 @@ layers {
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0
     }
   }
-  param: "rnn2_w"
-  param: "rnn2_b"  
+  param: "rnn_second_w"
+  param: "rnn_second_b"  
+}
+
+layers {
+  name: "r5"
+  type: RECURSIVE_ONCE
+  bottom: "r4"
+  top: "r5"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  recursive_once_param {
+    group: 14
+    num_uv: 2
+    relative_position: 0
+    relative_position: 2
+    assemble_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+  param: "rnn_second_w"
+  param: "rnn_second_b"  
+}
+
+layers {
+  name: "r6"
+  type: RECURSIVE_ONCE
+  bottom: "r5"
+  top: "r6"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  recursive_once_param {
+    group: 12
+    num_uv: 2
+    relative_position: 0
+    relative_position: 4
+    assemble_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+  param: "rnn_second_w"
+  param: "rnn_second_b"  
 }
 
 layers {
   name: "conv3"
   type: MULTICONVOLUTION
-  bottom: "rnn6"
+  bottom: "r6"
   top: "conv3"
   blobs_lr: 1
   blobs_lr: 2
   weight_decay: 1
   weight_decay: 0
-  convolution_param {
-    num_output: 384
+  multi_convolution_param {
+    num_output: 3072
+    group: 8
     pad: 1
     kernel_size: 3
     weight_filler {
@@ -373,12 +380,98 @@ layers {
   }
 }
 
+layers {
+  name: "r7"
+  type: RECURSIVE_ONCE
+  bottom: "norm3"
+  top: "r7"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  recursive_once_param {
+    group: 8
+    num_uv: 2
+    relative_position: 0
+    relative_position: 1
+    assemble_size: 5
+    stride: 2
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+  param: "rnn_third_w"
+  param: "rnn_thrid_b"  
+}
+
+layers {
+  name: "r8"
+  type: RECURSIVE_ONCE
+  bottom: "r7"
+  top: "r8"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  recursive_once_param {
+    group: 4
+    num_uv: 2
+    relative_position: 0
+    relative_position: 1
+    assemble_size: 5
+    stride: 2
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+  param: "rnn_third_w"
+  param: "rnn_third_b"  
+}
+
+layers {
+  name: "r9"
+  type: RECURSIVE_ONCE
+  bottom: "r8"
+  top: "r9"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  recursive_once_param {
+    group: 2
+    num_uv: 2
+    relative_position: 0
+    relative_position: 1
+    assemble_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+  param: "rnn_third_w"
+  param: "rnn_third_b"  
+}
 
 layers {
   name: "fc4"
   type: INNER_PRODUCT
-  bottom: "norm3"
-  top: "fc6"
+  bottom: "r9"
+  top: "fc4"
   blobs_lr: 1
   blobs_lr: 2
   weight_decay: 1
@@ -391,7 +484,7 @@ layers {
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0
     }
   }
 }
