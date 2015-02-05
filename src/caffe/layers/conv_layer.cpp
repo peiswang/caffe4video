@@ -69,7 +69,7 @@ void ConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     }
     // Initialize and fill the weights:
     // output channels x input channels per-group x kernel height x kernel width
-    this->blobs_[0].reset(new Blob<Dtype>(
+    this->blobs_[0].reset(new ParamBlob<Dtype>(
         num_output_, channels_ / group_, kernel_h_, kernel_w_));
     shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
         this->layer_param_.convolution_param().weight_filler()));
@@ -77,7 +77,7 @@ void ConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     // If necessary, initialize and fill the biases:
     // 1 x 1 x 1 x output channels
     if (bias_term_) {
-      this->blobs_[1].reset(new Blob<Dtype>(1, 1, 1, num_output_));
+      this->blobs_[1].reset(new ParamBlob<Dtype>(1, 1, 1, num_output_));
       shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
           this->layer_param_.convolution_param().bias_filler()));
       bias_filler->Fill(this->blobs_[1].get());

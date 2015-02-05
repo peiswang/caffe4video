@@ -154,6 +154,22 @@ class Blob {
   DISABLE_COPY_AND_ASSIGN(Blob);
 };  // class Blob
 
+
+
+
+template <typename Dtype>
+class ParamBlob : public Blob<Dtype> {
+
+public:
+  ParamBlob(bool need_acum=Caffe::accumulate()) : Blob<Dtype>(need_acum) {}
+  explicit ParamBlob(const int num, const int channels, const int height,
+                     const int width, bool need_acum = Caffe::accumulate()) 
+     : Blob<Dtype>(num, channels, height, width, need_acum) {};
+
+};
+
+
+
 }  // namespace caffe
 
 #endif  // CAFFE_BLOB_HPP_

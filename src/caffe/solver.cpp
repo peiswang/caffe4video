@@ -35,6 +35,14 @@ void Solver<Dtype>::Init(const SolverParameter& param) {
   if (param_.random_seed() >= 0) {
     Caffe::set_random_seed(param_.random_seed());
   }
+
+  // added for allowing bigger batch size
+  if (!param_.has_update_interval() || param_.update_interval() == 1) {
+    Caffe::set_accumulate(false);
+  } else {
+    Caffe::set_accumulate(true);
+  }
+
   // Scaffolding code
   InitTrainNet();
   InitTestNets();

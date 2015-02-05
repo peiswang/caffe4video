@@ -1,4 +1,7 @@
 ## General
+Makefile.config
+*.zip
+*.rar
 
 # Compiled Object files
 *.slo

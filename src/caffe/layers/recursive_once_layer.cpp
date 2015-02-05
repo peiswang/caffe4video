@@ -60,7 +60,7 @@ void RecursiveOnceLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     }
     // Initialize and fill the weights:
     // #input x assemble_size x kernel height x kernel width
-    this->blobs_[0].reset(new Blob<Dtype>(
+    this->blobs_[0].reset(new ParamBlob<Dtype>(
             assemble_size_, num_uv_, vl_, vl_));
     shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
             recursive_once_param.weight_filler()));
@@ -68,7 +68,7 @@ void RecursiveOnceLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     // If necessary, initialize and fill the biases:
     //
     if (bias_term_) {
-      this->blobs_[1].reset(new Blob<Dtype>(
+      this->blobs_[1].reset(new ParamBlob<Dtype>(
             1, 1, assemble_size_, vl_));
             //assemble_size_, num_uv_, 1, vector_length));
       shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(

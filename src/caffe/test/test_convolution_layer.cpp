@@ -1,6 +1,5 @@
 #include <cstring>
 #include <vector>
-#include <stdio.h>
 
 #include "gtest/gtest.h"
 
@@ -85,7 +84,6 @@ void caffe_conv(const Blob<Dtype>* in, ConvolutionParameter* conv_param,
         for (int y = 0; y < out->height(); y++) {
           for (int x = 0; x < out->width(); x++) {
             out_data[out->offset(n, o, y, x)] += bias_data[o];
-            printf("%.3f\n", bias_data[o]);
           }
         }
       }

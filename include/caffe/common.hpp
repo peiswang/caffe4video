@@ -128,12 +128,19 @@ class Caffe {
   // Prints the current GPU status.
   static void DeviceQuery();
 
+  // added to allow larger batch_size
+  inline static void set_accumulate(bool acum) {Get().accumulate_ = acum;}
+  inline static bool accumulate() {return Get().accumulate_;}
+
  protected:
 #ifndef CPU_ONLY
   cublasHandle_t cublas_handle_;
   curandGenerator_t curand_generator_;
 #endif
   shared_ptr<RNG> random_generator_;
+
+  // added to allow larger batch_size
+  bool accumulate_;
 
   Brew mode_;
   Phase phase_;

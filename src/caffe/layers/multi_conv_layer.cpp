@@ -69,7 +69,7 @@ void MultiConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom
     }
     // Initialize and fill the weights:
     // output channels(one group) x input channels per-group x kernel height x kernel width
-    this->blobs_[0].reset(new Blob<Dtype>(
+    this->blobs_[0].reset(new ParamBlob<Dtype>(
         num_output_ / group_, channels_ / group_, kernel_h_, kernel_w_));
     shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
         this->layer_param_.multi_convolution_param().weight_filler()));
@@ -77,7 +77,7 @@ void MultiConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom
     // If necessary, initialize and fill the biases:
     // 1 x 1 x 1 x output channels in one group
     if (bias_term_) {
-      this->blobs_[1].reset(new Blob<Dtype>(1, 1, 1, num_output_ / group_));
+      this->blobs_[1].reset(new ParamBlob<Dtype>(1, 1, 1, num_output_ / group_));
       shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
           this->layer_param_.multi_convolution_param().bias_filler()));
       bias_filler->Fill(this->blobs_[1].get());
