@@ -2,6 +2,8 @@
 Makefile.config
 *.zip
 *.rar
+*.binaryproto
+*.mdb
 
 # Compiled Object files
 *.slo

@@ -11,13 +11,13 @@ layers {
   } 
   transform_param {
     is_video: true
-    video_crop_size_t: 32
+    video_crop_size_t: 36
     video_crop_size_h: 227
     video_crop_size_w: 227
     mean_file: "examples/ucf-101/ucf101_mean.binaryproto"
     mirror: true
   }
-  include: { phrase: TRAIN }
+  include: { phase: TRAIN }
 }
 
 layers {
@@ -32,13 +32,13 @@ layers {
   }
   transform_param {
     is_video: true
-    video_crop_size_t: 32
+    video_crop_size_t: 36
     video_crop_size_h: 227
     video_crop_size_w: 227
     mean_file: "examples/ucf-101/ucf101_mean.binaryproto"
     mirror: false 
   }
-  include: { phrase: TEST }
+  include: { phase: TEST }
 }
 
 layers {

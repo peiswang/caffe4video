@@ -109,12 +109,12 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
       crop_width = crop_height = crop_size;
     }
 
-    if (mirror && crop_size == 0 && (video_crop_size_w ==0 || video_crop_size_h == 0)) {
+    if (mirror && (crop_width <=0 || crop_height <= 0)) {
       LOG(FATAL) << "Current implementation requires mirror and crop_size(or video_crop_size) "
                  << "to be set at the same time.";
     }
 
-    if (crop_width && crop_height) {
+    if (crop_width > 0 && crop_height > 0) {
       CHECK(data.size()) << "Image cropping only support uint8 data";
       int h_off, w_off, f_off;
       // We only do random crop when we do training.
@@ -123,16 +123,16 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
         w_off = Rand() % (width - crop_width);
         f_off = Rand() % (frames - crop_frames);
       } else {
-        h_off = (height - crop_size) / 2;
-        w_off = (width - crop_size) / 2;
+        h_off = (height - crop_height) / 2;
+        w_off = (width - crop_width) / 2;
         f_off = (frames - crop_frames) / 2;
       }
       if (mirror && Rand() % 2) {
         // Copy mirrored version
         for (int f = 0; f < crop_frames; ++f) {
           for (int c = 0; c < channels; ++c) {
-            for (int h = 0; h < crop_size; ++h) {
-              for (int w = 0; w < crop_size; ++w) {
+            for (int h = 0; h < crop_height; ++h) {
+              for (int w = 0; w < crop_width; ++w) {
                 int data_index = (((f_off + f) * channels + c) * height + h + h_off) * width + w + w_off;
                 int mean_index = (c * height + h + h_off) * width + w + w_off;
                 int top_index = (((batch_item_id * frames + f)* channels + c) * crop_height + h)
@@ -149,8 +149,8 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
         // Normal copy
         for (int f = 0; f < crop_frames; ++f) {
           for (int c = 0; c < channels; ++c) {
-            for (int h = 0; h < crop_size; ++h) {
-              for (int w = 0; w < crop_size; ++w) {
+            for (int h = 0; h < crop_height; ++h) {
+              for (int w = 0; w < crop_width; ++w) {
                 int data_index = (((f_off + f) * channels + c) * height + h + h_off) * width + w + w_off;
                 int mean_index = (c * height + h + h_off) * width + w + w_off;
                 int top_index = (((batch_item_id * frames + f)* channels + c) * crop_height + h)
@@ -191,7 +191,7 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
 template <typename Dtype>
 void DataTransformer<Dtype>::InitRand() {
   const bool needs_rand = (phase_ == Caffe::TRAIN) &&
-      (param_.mirror() || param_.crop_size());
+      (param_.mirror() || param_.crop_size() || param_.is_video());
   if (needs_rand) {
     const unsigned int rng_seed = caffe_rng_rand();
     rng_.reset(new Caffe::RNG(rng_seed));
