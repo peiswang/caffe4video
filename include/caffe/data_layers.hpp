@@ -49,6 +49,7 @@ class BaseDataLayer : public Layer<Dtype> {
   virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, vector<Blob<Dtype>*>* bottom) {}
 
+  int datum_frames() const { return datum_frames_; }
   int datum_channels() const { return datum_channels_; }
   int datum_height() const { return datum_height_; }
   int datum_width() const { return datum_width_; }
@@ -57,6 +58,7 @@ class BaseDataLayer : public Layer<Dtype> {
  protected:
   TransformationParameter transform_param_;
   DataTransformer<Dtype> data_transformer_;
+  int datum_frames_;
   int datum_channels_;
   int datum_height_;
   int datum_width_;

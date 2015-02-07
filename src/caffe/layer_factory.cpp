@@ -63,6 +63,33 @@ template MultiConvolutionLayer<float>* GetMultiConvolutionLayer(const string& na
 template MultiConvolutionLayer<double>* GetMultiConvolutionLayer(const string& name,
     const LayerParameter& param);
 
+// Get recursive_once layer according to engine.
+template <typename Dtype>
+RecursiveOnceLayer<Dtype>* GetRecursiveOnceLayer(const string& name,
+    const LayerParameter& param) {
+  RecursiveOnceParameter_Engine engine = param.recursive_once_param().engine();
+  if (engine == RecursiveOnceParameter_Engine_DEFAULT) {
+    engine = RecursiveOnceParameter_Engine_CAFFE;
+#ifdef USE_CUDNN
+    engine = RecursiveOnceParameter_Engine_CUDNN;
+#endif
+  }
+  if (engine == RecursiveOnceParameter_Engine_CAFFE) {
+    return new RecursiveOnceLayer<Dtype>(param);
+#ifdef USE_CUDNN
+  } else if (engine == RecursiveOnceParameter_Engine_CUDNN) {
+    return new CuDNNRecursiveOnceLayer<Dtype>(param);
+#endif
+  } else {
+    LOG(FATAL) << "Layer " << name << " has unknown engine.";
+  }
+}
+
+template RecursiveOnceLayer<float>* GetRecursiveOnceLayer(const string& name,
+    const LayerParameter& param);
+template RecursiveOnceLayer<double>* GetRecursiveOnceLayer(const string& name,
+    const LayerParameter& param);
+
 // Get pooling layer according to engine.
 template <typename Dtype>
 PoolingLayer<Dtype>* GetPoolingLayer(const string& name,
@@ -220,6 +247,10 @@ Layer<Dtype>* GetLayer(const LayerParameter& param) {
     return new ContrastiveLossLayer<Dtype>(param);
   case LayerParameter_LayerType_CONVOLUTION:
     return GetConvolutionLayer<Dtype>(name, param);
+  case LayerParameter_LayerType_MULTICONVOLUTION:
+    return GetMultiConvolutionLayer<Dtype>(name, param);
+  case LayerParameter_LayerType_RECURSIVE_ONCE:
+    return GetRecursiveOnceLayer<Dtype>(name, param);
   case LayerParameter_LayerType_DATA:
     return new DataLayer<Dtype>(param);
   case LayerParameter_LayerType_DROPOUT:

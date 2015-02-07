@@ -448,24 +448,6 @@ message MultiConvolutionParameter {
   optional Engine engine = 15 [default = DEFAULT];
 }
 
-// Added by wps
-// Message that stores parameters used by RecursiveLayer
-//message RecursiveParameter {
-//  optional uint32 group = 1 [default = 1]; // The group size
-//  //optional uint32 assemble_size = 3 [default = 1]; 
-//  optional uint32 stride = 5 [default = 1]; // The stride
-//  // Should have bias term ???
-//  optional bool bias_term = 6 [default = false]; // whether to have bias terms
-//  optional FillerParameter weight_filler = 7; // The filler for the weight
-//  optional FillerParameter bias_filler = 8; // The filler for the bias
-//  enum Engine {
-//    DEFAULT = 0;
-//    CAFFE = 1;
-//    CUDNN = 2;
-//  }
-//  optional Engine engine = 9 [default = DEFAULT];
-//  optional bool correspond = 10 [default = false];
-//}
 message RecursiveOnceParameter {
   optional uint32 group = 1 [default = 1]; // The group size
   optional uint32 num_uv = 2 [default = 1]; // The number of input for a output

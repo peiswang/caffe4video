@@ -28,7 +28,7 @@ layers {
   data_param {
     source: "examples/ucf-101/ucf101_test_lmdb"
     backend: LMDB
-    batch_size: 32
+    batch_size: 16
   }
   transform_param {
     is_video: true

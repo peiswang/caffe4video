@@ -111,23 +111,65 @@ void DataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
     LOG(FATAL) << "Unknown database backend";
   }
 
-  // image
-  int crop_size = this->layer_param_.transform_param().crop_size();
-  if (crop_size > 0) {
-    (*top)[0]->Reshape(this->layer_param_.data_param().batch_size(),
-                       datum.channels(), crop_size, crop_size);
-    this->prefetch_data_.Reshape(this->layer_param_.data_param().batch_size(),
-        datum.channels(), crop_size, crop_size);
+  bool is_video = this->layer_param_.transform_param().is_video();
+  if (!is_video) {
+    // image
+    int crop_size = this->layer_param_.transform_param().crop_size();
+    if (crop_size > 0) {
+      (*top)[0]->Reshape(this->layer_param_.data_param().batch_size(),
+                         datum.channels(), crop_size, crop_size);
+      this->prefetch_data_.Reshape(this->layer_param_.data_param().batch_size(),
+          datum.channels(), crop_size, crop_size);
+    } else {
+      (*top)[0]->Reshape(
+          this->layer_param_.data_param().batch_size(), datum.channels(),
+          datum.height(), datum.width());
+      this->prefetch_data_.Reshape(this->layer_param_.data_param().batch_size(),
+          datum.channels(), datum.height(), datum.width());
+    }
+    LOG(INFO) << "output data size: " << (*top)[0]->num() << ","
+        << (*top)[0]->channels() << "," << (*top)[0]->height() << ","
+        << (*top)[0]->width();
   } else {
-    (*top)[0]->Reshape(
-        this->layer_param_.data_param().batch_size(), datum.channels(),
-        datum.height(), datum.width());
-    this->prefetch_data_.Reshape(this->layer_param_.data_param().batch_size(),
-        datum.channels(), datum.height(), datum.width());
+    // video
+    int crop_width = 0;
+    int crop_height = 0;
+
+    int video_crop_size_h = this->layer_param_.transform_param().video_crop_size_h();
+    int video_crop_size_w = this->layer_param_.transform_param().video_crop_size_w();
+    int crop_frames = this->layer_param_.transform_param().video_crop_size_t();
+
+    int crop_size = this->layer_param_.transform_param().crop_size();
+    
+    if (crop_frames <= 0) {
+      LOG(FATAL) << "Video_crop_size_t must be set.";
+      return;
+    }
+    
+    if (video_crop_size_h != 0 && video_crop_size_w !=0) {
+      crop_width = video_crop_size_w;
+      crop_height = video_crop_size_h;
+    } else {
+      crop_width = crop_height = crop_size;
+    }
+
+    if (crop_width > 0 && crop_height > 0) {
+      (*top)[0]->Reshape(this->layer_param_.data_param().batch_size(),
+                         datum.channels() * crop_frames, crop_height, crop_width);
+      this->prefetch_data_.Reshape(this->layer_param_.data_param().batch_size(),
+          datum.channels() * crop_frames, crop_height, crop_width);
+    } else {
+      (*top)[0]->Reshape(
+          this->layer_param_.data_param().batch_size(), datum.channels() * crop_frames,
+          datum.height(), datum.width());
+      this->prefetch_data_.Reshape(this->layer_param_.data_param().batch_size(),
+          datum.channels() * crop_frames, datum.height(), datum.width());
+    }
+    LOG(INFO) << "output data size: " << (*top)[0]->num() << ","
+        << (*top)[0]->channels() << "," << (*top)[0]->height() << ","
+        << (*top)[0]->width();
+  
   }
-  LOG(INFO) << "output data size: " << (*top)[0]->num() << ","
-      << (*top)[0]->channels() << "," << (*top)[0]->height() << ","
-      << (*top)[0]->width();
   // label
   if (this->output_labels_) {
     (*top)[1]->Reshape(this->layer_param_.data_param().batch_size(), 1, 1, 1);
@@ -135,6 +177,7 @@ void DataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
         1, 1, 1);
   }
   // datum size
+  this->datum_frames_ = datum.frames();
   this->datum_channels_ = datum.channels();
   this->datum_height_ = datum.height();
   this->datum_width_ = datum.width();
