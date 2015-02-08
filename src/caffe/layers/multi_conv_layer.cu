@@ -51,12 +51,12 @@ void MultiConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
   if (this->param_propagate_down_[0]) {
     weight = this->blobs_[0]->gpu_data();
     weight_diff = this->blobs_[0]->mutable_gpu_diff();
-    caffe_set(this->blobs_[0]->count(), Dtype(0), weight_diff);
+    caffe_gpu_set(this->blobs_[0]->count(), Dtype(0), weight_diff);
   }
   Dtype* bias_diff = NULL;
   if (bias_term_ && this->param_propagate_down_[1]) {
     bias_diff = this->blobs_[1]->mutable_gpu_diff();
-    caffe_set(this->blobs_[1]->count(), Dtype(0), bias_diff);
+    caffe_gpu_set(this->blobs_[1]->count(), Dtype(0), bias_diff);
   }
   //const int weight_offset = M_ * K_; // A: all kernel size in a group
   const int col_offset = K_ * N_;  // B: group size

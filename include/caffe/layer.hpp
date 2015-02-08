@@ -36,7 +36,7 @@ class Layer {
       if (layer_param_.blobs_size() > 0) {
         blobs_.resize(layer_param_.blobs_size());
         for (int i = 0; i < layer_param_.blobs_size(); ++i) {
-          blobs_[i].reset(new ParamBlob<Dtype>(Caffe::accumulate()));
+          blobs_[i].reset(new ParamBlob<Dtype>());
           blobs_[i]->FromProto(layer_param_.blobs(i));
         }
       }

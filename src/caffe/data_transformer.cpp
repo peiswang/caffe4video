@@ -135,7 +135,7 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
               for (int w = 0; w < crop_width; ++w) {
                 int data_index = (((f_off + f) * channels + c) * height + h + h_off) * width + w + w_off;
                 int mean_index = (c * height + h + h_off) * width + w + w_off;
-                int top_index = (((batch_item_id * frames + f)* channels + c) * crop_height + h)
+                int top_index = (((batch_item_id * crop_frames + f)* channels + c) * crop_height + h)
                     * crop_width + (crop_width - 1 - w);
                 Dtype datum_element =
                     static_cast<Dtype>(static_cast<uint8_t>(data[data_index]));
@@ -153,7 +153,7 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
               for (int w = 0; w < crop_width; ++w) {
                 int data_index = (((f_off + f) * channels + c) * height + h + h_off) * width + w + w_off;
                 int mean_index = (c * height + h + h_off) * width + w + w_off;
-                int top_index = (((batch_item_id * frames + f)* channels + c) * crop_height + h)
+                int top_index = (((batch_item_id * crop_frames + f)* channels + c) * crop_height + h)
                     * crop_width + w;
                 Dtype datum_element =
                     static_cast<Dtype>(static_cast<uint8_t>(data[data_index]));
@@ -166,20 +166,27 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
       }
     } else {
       // we will prefer to use data() first, and then try float_data()
+      // We only do random crop when we do training.
+      int f_off;
+      if (phase_ == Caffe::TRAIN) {
+        f_off = Rand() % (frames - crop_frames);
+      } else {
+        f_off = (frames - crop_frames) / 2;
+      }
       if (data.size()) {
         for (int f = 0; f < crop_frames; ++f) {
           for (int j = 0; j < size; ++j) {
             Dtype datum_element =
-                static_cast<Dtype>(static_cast<uint8_t>(data[f * size + j]));
-            transformed_data[f * size + j + batch_item_id * frames * size] =
+                static_cast<Dtype>(static_cast<uint8_t>(data[(f_off + f) * size + j]));
+            transformed_data[(batch_item_id * crop_frames + f) * size + j] =
                 (datum_element - mean[j]) * scale;
           }
         }
       } else {
         for (int f = 0; f < crop_frames; ++f) {
           for (int j = 0; j < size; ++j) {
-            transformed_data[f * size + j + batch_item_id * frames * size] =
-                (datum.float_data(f * size + j) - mean[j]) * scale;
+            transformed_data[(batch_item_id * crop_frames + f) * size + j] =
+                (datum.float_data((f_off + f) * size + j) - mean[j]) * scale;
           }
         }
       }
