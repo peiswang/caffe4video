@@ -314,10 +314,17 @@ __global__ void vimax_kernel(const int n, Dtype* tmp_max, int* tmp_max_index,
     }
 }
 
-template <typename Dtype>
-void caffe_vimax(const int N, Dtype* tmp_max, int* tmp_max_index,
-                const Dtype* new_value, const int new_index) {
-  vimax_kernel<Dtype><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
+template <>
+void caffe_gpu_vimax<float>(const int N, float* tmp_max, int* tmp_max_index,
+                const float* new_value, const int new_index) {
+  vimax_kernel<float><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
+                  N, tmp_max, tmp_max_index, new_value, new_index);
+}
+
+template <>
+void caffe_gpu_vimax<double>(const int N, double* tmp_max, int* tmp_max_index,
+                const double* new_value, const int new_index) {
+  vimax_kernel<double><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
                   N, tmp_max, tmp_max_index, new_value, new_index);
 }
 

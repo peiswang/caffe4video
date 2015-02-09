@@ -170,7 +170,7 @@ void RecursiveOnceLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
         caffe_set(top_offset, 0, mask_ng);
         if (multi_weights_) {
           for (int nid = 1; nid < assemble_size_; ++nid) {
-            caffe_vimax(top_offset, top_data_ng, mask_ng, out_data + top_offset * nid, nid);
+            caffe_cpu_vimax(top_offset, top_data_ng, mask_ng, out_data + top_offset * nid, nid);
           }
           // uncomment to test mean-out for gradient check (?)
           //for(int sdf=0;sdf<top_offset;sdf++)

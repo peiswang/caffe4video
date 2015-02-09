@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 
 ./build/tools/caffe train \
-    --solver=models/bvlc_reference_caffenet/solver.prototxt \
-    --snapshot=models/bvlc_reference_caffenet/caffenet_train_10000.solverstate
+    --solver=examples/ucf-101/solver.prototxt \
+    --snapshot=examples/ucf-101/caffenet_train_10000.solverstate

@@ -5,7 +5,6 @@
 #include "caffe/util/math_functions.hpp"
 #include "caffe/vision_layers.hpp"
 #include <algorithm>
-#include <stdio.h>
 
 namespace caffe {
 
@@ -58,7 +57,7 @@ void RecursiveOnceLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
         caffe_gpu_set(top_offset, 0, mask_ng);
         if (multi_weights_) {
           for (int nid = 1; nid < assemble_size_; ++nid) {
-            caffe_vimax(top_offset, top_data_ng, mask_ng, out_data + top_offset * nid, nid);
+            caffe_gpu_vimax(top_offset, top_data_ng, mask_ng, out_data + top_offset * nid, nid);
           }
           // uncomment to test mean-out for gradient check (?)
           //for(int sdf=0;sdf<top_offset;sdf++)

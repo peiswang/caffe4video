@@ -75,7 +75,11 @@ template <typename Dtype>
 void caffe_div(const int N, const Dtype* a, const Dtype* b, Dtype* y);
 
 template <typename Dtype>
-void caffe_vimax(const int N, Dtype* tmp_max, int* tmp_max_index,
+void caffe_cpu_vimax(const int N, Dtype* tmp_max, int* tmp_max_index,
+                const Dtype* new_value, const int new_index);
+
+template <typename Dtype>
+void caffe_gpu_vimax(const int N, Dtype* tmp_max, int* tmp_max_index,
                 const Dtype* new_value, const int new_index);
 
 template <typename Dtype>

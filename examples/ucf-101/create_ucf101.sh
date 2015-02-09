@@ -51,7 +51,7 @@ GLOG_logtostderr=1 $TOOLS/convert_ucf101.bin \
     --resize_width=$RESIZE_WIDTH \
     --shuffle \
     $TEST_DATA_ROOT \
-    $DATA/ucfTrainTestlist/testlist01.txt \
+    $DATA/ucfTrainTestlist/testlist01_.txt \
     $EXAMPLE/ucf101_test_lmdb
 
 echo "Done."

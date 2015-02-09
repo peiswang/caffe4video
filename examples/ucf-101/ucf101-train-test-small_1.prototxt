@@ -7,7 +7,7 @@ top: "label"
 data_param {
 source: "examples/ucf-101/ucf101_train_lmdb"
 backend: LMDB
-batch_size: 16
+batch_size: 32
 }
 transform_param {
 is_video: true
@@ -27,7 +27,7 @@ top: "label"
 data_param {
 source: "examples/ucf-101/ucf101_train_lmdb"
 backend: LMDB
-batch_size: 16
+batch_size: 32
 }
 transform_param {
 is_video: true
@@ -80,6 +80,7 @@ kernel_size: 3
 stride: 2
 }
 }
+
 layers {
 name: "norm1"
 type: LRN
@@ -91,6 +92,7 @@ alpha: 0.0001
 beta: 0.75
 }
 }
+
 layers {
 name: "r1"
 type: RECURSIVE_ONCE
@@ -119,6 +121,14 @@ value: 0
 param: "rnn_first_w"
 param: "rnn_first_b"
 }
+
+layers {
+name: "rr1"
+type: RELU
+bottom: "r1"
+top: "r1"
+}
+
 layers {
 name: "r2"
 type: RECURSIVE_ONCE
@@ -148,6 +158,12 @@ param: "rnn_first_w"
 param: "rnn_first_b"
 }
 layers {
+name: "rr2"
+type: RELU
+bottom: "r2"
+top: "r2"
+}
+layers {
 name: "r3"
 type: RECURSIVE_ONCE
 bottom: "r2"
@@ -175,6 +191,13 @@ value: 0
 param: "rnn_first_w"
 param: "rnn_first_b"
 }
+layers {
+name: "rr3"
+type: RELU
+bottom: "r3"
+top: "r3"
+}
+
 layers {
 name: "conv2"
 type: MULTICONVOLUTION

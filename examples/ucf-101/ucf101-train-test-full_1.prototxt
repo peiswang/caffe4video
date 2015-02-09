@@ -127,6 +127,13 @@ layers {
 }
 
 layers {
+  name: "relu_r1"
+  type: RELU
+  bottom: "r1"
+  top: "r1"
+}
+
+layers {
   name: "r2"
   type: RECURSIVE_ONCE
   bottom: "r1"
@@ -156,6 +163,13 @@ layers {
 }
 
 layers {
+  name: "relu_r2"
+  type: RELU
+  bottom: "r2"
+  top: "r2"
+}
+
+layers {
   name: "r3"
   type: RECURSIVE_ONCE
   bottom: "r2"
@@ -182,6 +196,13 @@ layers {
   }
   param: "rnn_first_w"
   param: "rnn_first_b"
+}
+
+layers {
+  name: "relu_r3"
+  type: RELU
+  bottom: "r3"
+  top: "r3"
 }
 
 layers {
@@ -269,6 +290,13 @@ layers {
 }
 
 layers {
+  name: "relu_r4"
+  type: RELU
+  bottom: "r4"
+  top: "r4"
+}
+
+layers {
   name: "r5"
   type: RECURSIVE_ONCE
   bottom: "r4"
@@ -298,6 +326,13 @@ layers {
 }
 
 layers {
+  name: "relu_r5"
+  type: RELU
+  bottom: "r5"
+  top: "r5"
+}
+
+layers {
   name: "r6"
   type: RECURSIVE_ONCE
   bottom: "r5"
@@ -324,6 +359,13 @@ layers {
   }
   param: "rnn_second_w"
   param: "rnn_second_b"  
+}
+
+layers {
+  name: "relu_r6"
+  type: RELU
+  bottom: "r6"
+  top: "r6"
 }
 
 layers {
@@ -410,6 +452,13 @@ layers {
 }
 
 layers {
+  name: "relu_r7"
+  type: RELU
+  bottom: "r7"
+  top: "r7"
+}
+
+layers {
   name: "r8"
   type: RECURSIVE_ONCE
   bottom: "r7"
@@ -439,6 +488,13 @@ layers {
 }
 
 layers {
+  name: "relu_r8"
+  type: RELU
+  bottom: "r8"
+  top: "r8"
+}
+
+layers {
   name: "r9"
   type: RECURSIVE_ONCE
   bottom: "r8"
@@ -465,6 +521,13 @@ layers {
   }
   param: "rnn_third_w"
   param: "rnn_third_b"  
+}
+
+layers {
+  name: "relu_r9"
+  type: RELU
+  bottom: "r9"
+  top: "r9"
 }
 
 layers {

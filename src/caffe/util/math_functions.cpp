@@ -228,7 +228,7 @@ void caffe_div<double>(const int n, const double* a, const double* b,
 }
 
 template <>
-void caffe_vimax<float>(const int n, float* tmp_max, int* tmp_max_index,
+void caffe_cpu_vimax<float>(const int n, float* tmp_max, int* tmp_max_index,
                 const float* new_value, const int new_index) {
   for (int i=0;i<n;++i) {
     if (new_value[i]>tmp_max[i]) {
@@ -239,7 +239,7 @@ void caffe_vimax<float>(const int n, float* tmp_max, int* tmp_max_index,
 }
 
 template <>
-void caffe_vimax<double>(const int n, double* tmp_max, int* tmp_max_index,
+void caffe_cpu_vimax<double>(const int n, double* tmp_max, int* tmp_max_index,
                 const double* new_value, const int new_index) {
   for (int i=0;i<n;++i) {
     if (new_value[i]>tmp_max[i]) {
@@ -252,7 +252,7 @@ void caffe_vimax<double>(const int n, double* tmp_max, int* tmp_max_index,
 // used when test mean-out
 // uncomment to test mean-out for gradient check (?)
 //template <>
-//void caffe_vimax<float>(const int n, float* tmp_max, int* tmp_max_index,
+//void caffe_cpu_vimax<float>(const int n, float* tmp_max, int* tmp_max_index,
 //                const float* new_value, const int new_index) {
 //  for (int i=0;i<n;++i) {
 //  //  if (new_value[i]>tmp_max[i]) {
@@ -263,7 +263,7 @@ void caffe_vimax<double>(const int n, double* tmp_max, int* tmp_max_index,
 //}
 //
 //template <>
-//void caffe_vimax<double>(const int n, double* tmp_max, int* tmp_max_index,
+//void caffe_cpu_vimax<double>(const int n, double* tmp_max, int* tmp_max_index,
 //                const double* new_value, const int new_index) {
 //  for (int i=0;i<n;++i) {
 //    //if (new_value[i]>tmp_max[i]) {
