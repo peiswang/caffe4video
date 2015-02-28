@@ -7,11 +7,11 @@ layers {
   data_param {
     source: "examples/ucf-101/ucf101_train_lmdb"
     backend: LMDB
-    batch_size: 8
+    batch_size: 16 
   } 
   transform_param {
     is_video: true
-    video_crop_size_t: 36
+    video_crop_size_t: 22
     video_crop_size_h: 227
     video_crop_size_w: 227
     mean_file: "examples/ucf-101/ucf101_mean.binaryproto"
@@ -28,11 +28,11 @@ layers {
   data_param {
     source: "examples/ucf-101/ucf101_test_lmdb"
     backend: LMDB
-    batch_size: 8
+    batch_size: 16
   }
   transform_param {
     is_video: true
-    video_crop_size_t: 36
+    video_crop_size_t: 22 
     video_crop_size_h: 227
     video_crop_size_w: 227
     mean_file: "examples/ucf-101/ucf101_mean.binaryproto"
@@ -51,8 +51,8 @@ layers {
   weight_decay: 1
   weight_decay: 0
   multi_convolution_param {
-    num_output: 3456 
-    group: 36
+    num_output: 2112 
+    group: 22
     kernel_size: 11
     stride: 4
     weight_filler {
@@ -107,7 +107,7 @@ layers {
   weight_decay: 1
   weight_decay: 0
   recursive_once_param {
-    group: 36
+    group: 22
     relative_position: 0
     relative_position: 1
     num_uv: 2
@@ -143,7 +143,7 @@ layers {
   weight_decay: 1
   weight_decay: 0
   recursive_once_param {
-    group: 18
+    group: 11
     relative_position: 0
     relative_position: 1
     num_uv: 2
@@ -179,7 +179,7 @@ layers {
   weight_decay: 1
   weight_decay: 0
   recursive_once_param {
-    group: 17
+    group: 10
     relative_position: 0
     relative_position: 2
     num_uv: 2
@@ -215,8 +215,8 @@ layers {
   weight_decay: 1
   weight_decay: 0
   multi_convolution_param {
-    num_output: 3840
-    group: 15
+    num_output: 2048
+    group: 8
     pad: 2
     kernel_size: 5
     weight_filler {
@@ -259,6 +259,7 @@ layers {
   }
 }
 
+
 layers {
   name: "r4"
   type: RECURSIVE_ONCE
@@ -269,12 +270,12 @@ layers {
   weight_decay: 1
   weight_decay: 0
   recursive_once_param {
-    group: 15
+    group: 8 
     num_uv: 2
     relative_position: 0
     relative_position: 1
     assemble_size: 5
-    stride: 1
+    stride: 2
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -305,12 +306,12 @@ layers {
   weight_decay: 1
   weight_decay: 0
   recursive_once_param {
-    group: 14
+    group: 4
     num_uv: 2
     relative_position: 0
-    relative_position: 2
+    relative_position: 1
     assemble_size: 5
-    stride: 1
+    stride: 2
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -341,10 +342,10 @@ layers {
   weight_decay: 1
   weight_decay: 0
   recursive_once_param {
-    group: 12
+    group: 2
     num_uv: 2
     relative_position: 0
-    relative_position: 4
+    relative_position: 1
     assemble_size: 5
     stride: 1
     weight_filler {
@@ -377,8 +378,8 @@ layers {
   weight_decay: 1
   weight_decay: 0
   multi_convolution_param {
-    num_output: 3072
-    group: 8
+    num_output: 384
+    group: 1
     pad: 1
     kernel_size: 3
     weight_filler {
@@ -400,74 +401,10 @@ layers {
 }
 
 layers {
-  name: "conv4"
-  type: MULTICONVOLUTION
-  bottom: "conv3"
-  top: "conv4"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  multi_convolution_param {
-    num_output: 3072
-    group: 8
-    pad: 1
-    kernel_size: 3
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-
-layers {
-  name: "relu4"
-  type: RELU
-  bottom: "conv4"
-  top: "conv4"
-}
-
-layers {
-  name: "conv5"
-  type: MULTICONVOLUTION
-  bottom: "conv4"
-  top: "conv5"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  multi_convolution_param {
-    num_output: 3072
-    group: 8
-    pad: 1
-    kernel_size: 3
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-
-layers {
-  name: "relu5"
-  type: RELU
-  bottom: "conv5"
-  top: "conv5"
-}
-
-layers {
-  name: "pool5"
+  name: "pool3"
   type: POOLING
-  bottom: "conv5"
-  top: "pool5"
+  bottom: "conv3"
+  top: "pool3"
   pooling_param {
     pool: MAX
     kernel_size: 3
@@ -476,117 +413,21 @@ layers {
 }
 
 layers {
-  name: "r7"
-  type: RECURSIVE_ONCE
-  bottom: "pool5"
-  top: "r7"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  recursive_once_param {
-    group: 8
-    num_uv: 2
-    relative_position: 0
-    relative_position: 1
-    assemble_size: 5
-    stride: 2
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  name: "norm3"
+  type: LRN
+  bottom: "pool3"
+  top: "norm3"
+  lrn_param {
+    local_size: 5
+    alpha: 0.0001
+    beta: 0.75
   }
-  param: "rnn_third_w"
-  param: "rnn_third_b"  
-}
-
-layers {
-  name: "relu_r7"
-  type: RELU
-  bottom: "r7"
-  top: "r7"
-}
-
-layers {
-  name: "r8"
-  type: RECURSIVE_ONCE
-  bottom: "r7"
-  top: "r8"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  recursive_once_param {
-    group: 4
-    num_uv: 2
-    relative_position: 0
-    relative_position: 1
-    assemble_size: 5
-    stride: 2
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-  param: "rnn_third_w"
-  param: "rnn_third_b"  
-}
-
-layers {
-  name: "relu_r8"
-  type: RELU
-  bottom: "r8"
-  top: "r8"
-}
-
-layers {
-  name: "r9"
-  type: RECURSIVE_ONCE
-  bottom: "r8"
-  top: "r9"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  recursive_once_param {
-    group: 2
-    num_uv: 2
-    relative_position: 0
-    relative_position: 1
-    assemble_size: 5
-    stride: 1
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-  param: "rnn_third_w"
-  param: "rnn_third_b"  
-}
-
-layers {
-  name: "relu_r9"
-  type: RELU
-  bottom: "r9"
-  top: "r9"
 }
 
 layers {
   name: "fc4"
   type: INNER_PRODUCT
-  bottom: "r9"
+  bottom: "norm3"
   top: "fc4"
   blobs_lr: 1
   blobs_lr: 2
@@ -671,7 +512,7 @@ layers {
   weight_decay: 1
   weight_decay: 0
   inner_product_param {
-    num_output: 9 
+    num_output: 9
     weight_filler {
       type: "gaussian"
       std: 0.005
@@ -691,7 +532,6 @@ layers {
   top: "accuracy"
   include: { phase: TEST }
 }
-
 
 layers {
   name: "loss"

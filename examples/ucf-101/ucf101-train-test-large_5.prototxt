@@ -7,7 +7,7 @@ layers {
   data_param {
     source: "examples/ucf-101/ucf101_train_lmdb"
     backend: LMDB
-    batch_size: 16
+    batch_size: 8
   } 
   transform_param {
     is_video: true
@@ -28,7 +28,7 @@ layers {
   data_param {
     source: "examples/ucf-101/ucf101_test_lmdb"
     backend: LMDB
-    batch_size: 16
+    batch_size: 8
   }
   transform_param {
     is_video: true
@@ -111,7 +111,7 @@ layers {
     relative_position: 0
     relative_position: 1
     num_uv: 2
-    assemble_size: 1
+    assemble_size: 5
     stride: 2
     weight_filler {
       type: "gaussian"
@@ -147,7 +147,7 @@ layers {
     relative_position: 0
     relative_position: 1
     num_uv: 2
-    assemble_size: 1
+    assemble_size: 5
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -183,7 +183,7 @@ layers {
     relative_position: 0
     relative_position: 2
     num_uv: 2
-    assemble_size: 1
+    assemble_size: 5
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -259,7 +259,6 @@ layers {
   }
 }
 
-
 layers {
   name: "r4"
   type: RECURSIVE_ONCE
@@ -274,7 +273,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 1
-    assemble_size: 1
+    assemble_size: 5
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -310,7 +309,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 2
-    assemble_size: 1
+    assemble_size: 5
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -346,7 +345,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 4
-    assemble_size: 1
+    assemble_size: 5
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -410,22 +409,24 @@ layers {
     stride: 2
   }
 }
-layers {
-  name: "norm3"
-  type: LRN
-  bottom: "pool3"
-  top: "norm3"
-  lrn_param {
-    local_size: 5
-    alpha: 0.0001
-    beta: 0.75
-  }
-}
+
+#layers {
+#  name: "norm3"
+#  type: LRN
+#  bottom: "pool3"
+#  top: "norm3"
+#  lrn_param {
+#    local_size: 5
+#    alpha: 0.0001
+#    beta: 0.75
+#  }
+#}
 
 layers {
   name: "r7"
   type: RECURSIVE_ONCE
-  bottom: "norm3"
+#  bottom: "norm3"
+  bottom: "pool3"
   top: "r7"
   blobs_lr: 1
   blobs_lr: 2
@@ -436,7 +437,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 1
-    assemble_size: 1
+    assemble_size: 5
     stride: 2
     weight_filler {
       type: "gaussian"
@@ -472,7 +473,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 1
-    assemble_size: 1
+    assemble_size: 5
     stride: 2
     weight_filler {
       type: "gaussian"
@@ -508,7 +509,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 1
-    assemble_size: 1
+    assemble_size: 5
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -558,6 +559,7 @@ layers {
   bottom: "fc4"
   top: "fc4"
 }
+
 layers {
   name: "drop4"
   type: DROPOUT
@@ -569,9 +571,70 @@ layers {
 }
 
 layers {
+  name: "fc5"
+  type: INNER_PRODUCT
+  bottom: "fc4"
+  top: "fc5"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  inner_product_param {
+    num_output: 4096
+    weight_filler {
+      type: "gaussian"
+      std: 0.005
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layers {
+  name: "relu5"
+  type: RELU
+  bottom: "fc5"
+  top: "fc5"
+}
+
+layers {
+  name: "drop5"
+  type: DROPOUT
+  bottom: "fc5"
+  top: "fc5"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+
+layers {
+  name: "fc6"
+  type: INNER_PRODUCT
+  bottom: "fc5"
+  top: "fc6"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  inner_product_param {
+    num_output: 9 
+    weight_filler {
+      type: "gaussian"
+      std: 0.005
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layers {
   name: "accuracy"
   type: ACCURACY
-  bottom: "fc4"
+  bottom: "fc6"
   bottom: "label"
   top: "accuracy"
   include: { phase: TEST }
@@ -581,7 +644,7 @@ layers {
 layers {
   name: "loss"
   type: SOFTMAX_LOSS
-  bottom: "fc4"
+  bottom: "fc6"
   bottom: "label"
   top: "loss"
 }

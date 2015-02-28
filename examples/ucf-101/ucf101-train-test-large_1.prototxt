@@ -111,7 +111,7 @@ layers {
     relative_position: 0
     relative_position: 1
     num_uv: 2
-    assemble_size: 5
+    assemble_size: 1
     stride: 2
     weight_filler {
       type: "gaussian"
@@ -147,7 +147,7 @@ layers {
     relative_position: 0
     relative_position: 1
     num_uv: 2
-    assemble_size: 5
+    assemble_size: 1
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -183,7 +183,7 @@ layers {
     relative_position: 0
     relative_position: 2
     num_uv: 2
-    assemble_size: 5
+    assemble_size: 1
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -273,7 +273,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 1
-    assemble_size: 5
+    assemble_size: 1
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -309,7 +309,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 2
-    assemble_size: 5
+    assemble_size: 1
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -345,7 +345,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 4
-    assemble_size: 5
+    assemble_size: 1
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -391,7 +391,6 @@ layers {
     }
   }
 }
-
 layers {
   name: "relu3"
   type: RELU
@@ -400,74 +399,10 @@ layers {
 }
 
 layers {
-  name: "conv4"
-  type: MULTICONVOLUTION
-  bottom: "conv3"
-  top: "conv4"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  multi_convolution_param {
-    num_output: 3072
-    group: 8
-    pad: 1
-    kernel_size: 3
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-
-layers {
-  name: "relu4"
-  type: RELU
-  bottom: "conv4"
-  top: "conv4"
-}
-
-layers {
-  name: "conv5"
-  type: MULTICONVOLUTION
-  bottom: "conv4"
-  top: "conv5"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  multi_convolution_param {
-    num_output: 3072
-    group: 8
-    pad: 1
-    kernel_size: 3
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-
-layers {
-  name: "relu5"
-  type: RELU
-  bottom: "conv5"
-  top: "conv5"
-}
-
-layers {
-  name: "pool5"
+  name: "pool3"
   type: POOLING
-  bottom: "conv5"
-  top: "pool5"
+  bottom: "conv3"
+  top: "pool3"
   pooling_param {
     pool: MAX
     kernel_size: 3
@@ -475,10 +410,23 @@ layers {
   }
 }
 
+#layers {
+#  name: "norm3"
+#  type: LRN
+#  bottom: "pool3"
+#  top: "norm3"
+#  lrn_param {
+#    local_size: 5
+#    alpha: 0.0001
+#    beta: 0.75
+#  }
+#}
+
 layers {
   name: "r7"
   type: RECURSIVE_ONCE
-  bottom: "pool5"
+#  bottom: "norm3"
+  bottom: "pool3"
   top: "r7"
   blobs_lr: 1
   blobs_lr: 2
@@ -489,7 +437,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 1
-    assemble_size: 5
+    assemble_size: 1
     stride: 2
     weight_filler {
       type: "gaussian"
@@ -525,7 +473,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 1
-    assemble_size: 5
+    assemble_size: 1
     stride: 2
     weight_filler {
       type: "gaussian"
@@ -561,7 +509,7 @@ layers {
     num_uv: 2
     relative_position: 0
     relative_position: 1
-    assemble_size: 5
+    assemble_size: 1
     stride: 1
     weight_filler {
       type: "gaussian"
