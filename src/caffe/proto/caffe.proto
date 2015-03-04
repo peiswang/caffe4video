@@ -614,6 +614,7 @@ message LRNParameter {
     WITHIN_CHANNEL = 1;
   }
   optional NormRegion norm_region = 4 [default = ACROSS_CHANNELS];
+  optional uint32 group = 5 [default = 1];
 }
 
 // Message that stores parameters used by MemoryDataLayer

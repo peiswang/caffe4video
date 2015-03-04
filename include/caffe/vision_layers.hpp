@@ -433,6 +433,7 @@ class LRNLayer : public Layer<Dtype> {
   int channels_;
   int height_;
   int width_;
+  int group_;
 
   // Fields used for normalization ACROSS_CHANNELS
   // scale_ stores the intermediate summing results

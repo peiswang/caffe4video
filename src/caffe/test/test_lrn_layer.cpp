@@ -28,7 +28,7 @@ class LRNLayerTest : public MultiDeviceTest<TypeParam> {
         blob_top_(new Blob<Dtype>()) {}
   virtual void SetUp() {
     Caffe::set_random_seed(1701);
-    blob_bottom_->Reshape(2, 7, 3, 3);
+    blob_bottom_->Reshape(2, 14, 3, 3);
     // fill the values
     FillerParameter filler_param;
     GaussianFiller<Dtype> filler(filler_param);
@@ -58,23 +58,27 @@ void LRNLayerTest<TypeParam>::ReferenceLRNForward(
   LRNParameter lrn_param = layer_param.lrn_param();
   Dtype alpha = lrn_param.alpha();
   Dtype beta = lrn_param.beta();
+  int group = lrn_param.group();
+  int channels_per_group = blob_bottom.channels() / group; 
   int size = lrn_param.local_size();
   switch (lrn_param.norm_region()) {
   case LRNParameter_NormRegion_ACROSS_CHANNELS:
     for (int n = 0; n < blob_bottom.num(); ++n) {
-      for (int c = 0; c < blob_bottom.channels(); ++c) {
-        for (int h = 0; h < blob_bottom.height(); ++h) {
-          for (int w = 0; w < blob_bottom.width(); ++w) {
-            int c_start = c - (size - 1) / 2;
-            int c_end = min(c_start + size, blob_bottom.channels());
-            c_start = max(c_start, 0);
-            Dtype scale = 1.;
-            for (int i = c_start; i < c_end; ++i) {
-              Dtype value = blob_bottom.data_at(n, i, h, w);
-              scale += value * value * alpha / size;
+      for (int g = 0; g < group; ++g) {
+        for (int c = 0; c < channels_per_group; ++c) {
+          for (int h = 0; h < blob_bottom.height(); ++h) {
+            for (int w = 0; w < blob_bottom.width(); ++w) {
+              int c_start = c - (size - 1) / 2;
+              int c_end = min(c_start + size, channels_per_group);
+              c_start = max(c_start, 0);
+              Dtype scale = 1.;
+              for (int i = c_start; i < c_end; ++i) {
+                Dtype value = blob_bottom.data_at(n, g * channels_per_group + i, h, w);
+                scale += value * value * alpha / size;
+              }
+              *(top_data + blob_top->offset(n, g * channels_per_group + c, h, w)) =
+                blob_bottom.data_at(n, g * channels_per_group + c, h, w) / pow(scale, beta);
             }
-            *(top_data + blob_top->offset(n, c, h, w)) =
-              blob_bottom.data_at(n, c, h, w) / pow(scale, beta);
           }
         }
       }
@@ -115,10 +119,11 @@ TYPED_TEST_CASE(LRNLayerTest, TestDtypesAndDevices);
 TYPED_TEST(LRNLayerTest, TestSetupAcrossChannels) {
   typedef typename TypeParam::Dtype Dtype;
   LayerParameter layer_param;
+  layer_param.mutable_lrn_param()->set_group(2);
   LRNLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_, &(this->blob_top_vec_));
   EXPECT_EQ(this->blob_top_->num(), 2);
-  EXPECT_EQ(this->blob_top_->channels(), 7);
+  EXPECT_EQ(this->blob_top_->channels(), 14);
   EXPECT_EQ(this->blob_top_->height(), 3);
   EXPECT_EQ(this->blob_top_->width(), 3);
 }
@@ -126,6 +131,7 @@ TYPED_TEST(LRNLayerTest, TestSetupAcrossChannels) {
 TYPED_TEST(LRNLayerTest, TestForwardAcrossChannels) {
   typedef typename TypeParam::Dtype Dtype;
   LayerParameter layer_param;
+  layer_param.mutable_lrn_param()->set_group(2);
   LRNLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_, &(this->blob_top_vec_));
   layer.Forward(this->blob_bottom_vec_, &(this->blob_top_vec_));
@@ -141,6 +147,7 @@ TYPED_TEST(LRNLayerTest, TestForwardAcrossChannels) {
 TYPED_TEST(LRNLayerTest, TestGradientAcrossChannels) {
   typedef typename TypeParam::Dtype Dtype;
   LayerParameter layer_param;
+  layer_param.mutable_lrn_param()->set_group(2);
   LRNLayer<Dtype> layer(layer_param);
   GradientChecker<Dtype> checker(1e-2, 1e-2);
   layer.SetUp(this->blob_bottom_vec_, &(this->blob_top_vec_));
@@ -168,7 +175,7 @@ TYPED_TEST(LRNLayerTest, TestSetupWithinChannel) {
   LRNLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_, &(this->blob_top_vec_));
   EXPECT_EQ(this->blob_top_->num(), 2);
-  EXPECT_EQ(this->blob_top_->channels(), 7);
+  EXPECT_EQ(this->blob_top_->channels(), 14);
   EXPECT_EQ(this->blob_top_->height(), 3);
   EXPECT_EQ(this->blob_top_->width(), 3);
 }
