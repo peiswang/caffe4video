@@ -86,7 +86,7 @@ void LRNLayer<Dtype>::CrossChannelForward_gpu(
   Dtype* scale_data = scale_.mutable_gpu_data();
   // We will launch one kernel for each pixel location, and have the kernel
   // go through all the channels.
-  int n_threads = num_ * gourp_ * height_ * width_;
+  int n_threads = num_ * group_ * height_ * width_;
   int channels_per_group = channels_ / group_;
   // NOLINT_NEXT_LINE(whitespace/operators)
   LRNFillScale<<<CAFFE_GET_BLOCKS(n_threads), CAFFE_CUDA_NUM_THREADS>>>(

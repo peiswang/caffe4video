@@ -133,6 +133,7 @@ class Net {
   }
   /// @brief returns the parameters
   inline vector<shared_ptr<Blob<Dtype> > >& params() { return params_; }
+  inline vector<string>& param_display_names() { return param_display_names_; }
   /// @brief returns the parameter learning rate multipliers
   inline vector<float>& params_lr() { return params_lr_; }
   inline vector<float>& params_weight_decay() { return params_weight_decay_; }

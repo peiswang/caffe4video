@@ -88,13 +88,13 @@ void caffe_cpu_backfill<double>(const int N, const double* x,
 // added by sxyu
 // calculate the euclidean norm of a vector
 template <>
-void caffe_cal_norm<float>(const int N, const float* x, float &norm, int incre) {
-  norm = cblas_snrm2(N, x, incre);
+float caffe_norm<float>(const int N, const float* x) {
+  return cblas_snrm2(N, x, 1);
 }
 
 template <>
-void caffe_cal_norm<double>(const int N, const double* x, double &norm, int incre) {
-  norm = cblas_dnrm2(N, x, incre);
+double caffe_norm<double>(const int N, const double* x) {
+  return cblas_dnrm2(N, x, 1);
 }
 
 

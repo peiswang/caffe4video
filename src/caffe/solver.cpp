@@ -454,14 +454,20 @@ void SGDSolver<Dtype>::ComputeUpdateValue() {
   vector<shared_ptr<Blob<Dtype> > >& net_params = this->net_->params();
   vector<float>& net_params_lr = this->net_->params_lr();
   vector<float>& net_params_weight_decay = this->net_->params_weight_decay();
+  //const map<string, int>& net_param_names_index = this->net_->param_names_index();
+  const vector<string>& net_param_display_names = this->net_->param_display_names();
+            //net_->blob_names()[net_->output_blob_indices()[j]];
   // get the learning rate
   Dtype rate = GetLearningRate() / Dtype(this->param_.update_interval());
-  if (this->param_.display() && this->iter_ % this->param_.display() == 0) {
+  const bool display = this->param_.display_norm() && this->iter_ % this->param_.display_norm() == 0;
+  if (display) {
     LOG(INFO) << "Iteration " << this->iter_ << ", lr = " << rate;
   }
   Dtype momentum = this->param_.momentum();
   Dtype weight_decay = this->param_.weight_decay() * Dtype(this->param_.update_interval());
   string regularization_type = this->param_.regularization_type();
+
+
   switch (Caffe::mode()) {
   case Caffe::CPU:
     for (int param_id = 0; param_id < net_params.size(); ++param_id) {
@@ -489,16 +495,6 @@ void SGDSolver<Dtype>::ComputeUpdateValue() {
         }
       }
 
-      // added by sxyu
-      // monitor ration = gradient_update_norm / weight_norm
-      Dtype grad_norm, weight_norm;
-      caffe_cal_norm(net_params[param_id]->count(),
-                         net_params[param_id]->cpu_data(), grad_norm, 1);
-      caffe_cal_norm(history_[param_id]->count(), 
-                         history_[param_id]->cpu_data(), weight_norm, 1);
-      LOG(INFO) << "Iteration " << this->iter_ << ": gradient_update_norm/weight_norm = "
-      << grad_norm / weight_norm;
-
       caffe_cpu_axpby(net_params[param_id]->count(), local_rate,
                 net_params[param_id]->cpu_diff(), momentum,
                 history_[param_id]->mutable_cpu_data());
@@ -506,6 +502,18 @@ void SGDSolver<Dtype>::ComputeUpdateValue() {
       caffe_copy(net_params[param_id]->count(),
           history_[param_id]->cpu_data(),
           net_params[param_id]->mutable_cpu_diff());
+
+      // added by sxyu
+      // monitor ration = gradient_update_norm / weight_norm
+      if (display) {
+        Dtype grad_norm, weight_norm;
+        grad_norm = caffe_norm(net_params[param_id]->count(),
+                           net_params[param_id]->cpu_diff());
+        weight_norm = caffe_norm(net_params[param_id]->count(), 
+                           net_params[param_id]->cpu_data());
+        LOG(INFO) << "Iteration " << this->iter_ << ": gradient_update_norm/weight_norm = "
+        << grad_norm / weight_norm;
+      }
     }
     break;
   case Caffe::GPU:
@@ -542,6 +550,19 @@ void SGDSolver<Dtype>::ComputeUpdateValue() {
       caffe_copy(net_params[param_id]->count(),
           history_[param_id]->gpu_data(),
           net_params[param_id]->mutable_gpu_diff());
+
+      // added by sxyu
+      // monitor ration = gradient_update_norm / weight_norm
+      if (display) {
+        Dtype grad_norm, weight_norm;
+        grad_norm = caffe_gpu_norm(net_params[param_id]->count(),
+                           net_params[param_id]->gpu_diff());
+        weight_norm = caffe_gpu_norm(net_params[param_id]->count(), 
+                           net_params[param_id]->gpu_data());
+        LOG(INFO) << "Iteration " << this->iter_ << "[" << net_param_display_names[param_id] 
+	<< "] : gradient_update_norm/weight_norm = "
+        << grad_norm / weight_norm;
+      }
     }
 #else
     NO_GPU;

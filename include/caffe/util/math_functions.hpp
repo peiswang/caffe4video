@@ -33,7 +33,7 @@ void caffe_cpu_backfill(const int N, const Dtype* x,
 
 // added by sxyu
 template <typename Dtype>
-void caffe_cal_norm(const int N, const Dtype* x, Dtype &norm, int incre);
+Dtype caffe_norm(const int N, const Dtype* x);
 
 template <typename Dtype>
 void caffe_axpy(const int N, const Dtype alpha, const Dtype* X,
@@ -186,6 +186,9 @@ void caffe_gpu_gemv(const CBLAS_TRANSPOSE TransA, const int M, const int N,
 template <typename Dtype>
 void caffe_gpu_backfill(const int N, const Dtype* x,
      const int* index, Dtype* A);
+
+template <typename Dtype>
+Dtype caffe_gpu_norm(const int N, const Dtype* x);
 
 template <typename Dtype>
 void caffe_gpu_axpy(const int N, const Dtype alpha, const Dtype* X,

@@ -87,6 +87,20 @@ void caffe_gpu_backfill<double>(const int N, const double* x,
 }
 
 template <>
+float caffe_gpu_norm<float>(const int N, const float* x) {
+  float norm = 0.0;
+  CUBLAS_CHECK(cublasSnrm2(Caffe::cublas_handle(), N, x, 1, &norm));
+  return norm;
+}
+
+template <>
+double caffe_gpu_norm<double>(const int N, const double* x) {
+  double norm = 0.0;
+  CUBLAS_CHECK(cublasDnrm2(Caffe::cublas_handle(), N, x, 1, &norm));
+  return norm;
+}
+
+template <>
 void caffe_gpu_axpy<float>(const int N, const float alpha, const float* X,
     float* Y) {
   CUBLAS_CHECK(cublasSaxpy(Caffe::cublas_handle(), N, &alpha, X, 1, Y, 1));
