@@ -4,6 +4,8 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <unistd.h>
+#include <signal.h>
 
 #include "caffe/caffe.hpp"
 
@@ -14,7 +16,6 @@ using caffe::Layer;
 using caffe::shared_ptr;
 using caffe::Timer;
 using caffe::vector;
-
 
 DEFINE_int32(gpu, -1,
     "Run in GPU mode on given device ID.");
@@ -29,6 +30,9 @@ DEFINE_string(weights, "",
     "Cannot be set simultaneously with snapshot.");
 DEFINE_int32(iterations, 50,
     "The number of iterations to run.");
+
+
+shared_ptr<caffe::Solver<float> > g_solver;
 
 // A simple registry for caffe commands.
 typedef int (*BrewFunction)();
@@ -57,6 +61,18 @@ static BrewFunction GetBrewFunction(const caffe::string& name) {
     }
     LOG(FATAL) << "Unknown action: " << name;
     return NULL;  // not reachable, just to suppress old compiler warnings.
+  }
+}
+
+static void sig_int(int num)
+{
+  LOG(INFO) << "Save and exit";
+  if (g_solver == NULL) {
+    _exit(0);
+  } else {
+    g_solver->Snapshot();
+    g_solver.reset();
+    _exit(0);
   }
 }
 
@@ -107,6 +123,7 @@ int train() {
   LOG(INFO) << "Starting Optimization";
   shared_ptr<caffe::Solver<float> >
     solver(caffe::GetSolver<float>(solver_param));
+  g_solver = solver;
 
   if (FLAGS_snapshot.size()) {
     LOG(INFO) << "Resuming from " << FLAGS_snapshot;
@@ -267,8 +284,12 @@ int time() {
 RegisterBrewFunction(time);
 
 int main(int argc, char** argv) {
+  // ctrl-c
+  signal(SIGINT, sig_int);
+  g_solver.reset();
   // Print output to stderr (while still logging).
   FLAGS_alsologtostderr = 1;
+  google::SetLogDestination(google::INFO, "./log/");
   // Usage message.
   gflags::SetUsageMessage("command line brew\n"
       "usage: caffe <command> <args>\n\n"

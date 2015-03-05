@@ -4,6 +4,7 @@ Makefile.config
 *.rar
 *.binaryproto
 *.mdb
+log
 
 # Compiled Object files
 *.slo
