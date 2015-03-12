@@ -365,6 +365,9 @@ message TransformationParameter {
   optional uint32 video_crop_size_t = 6 [default = 0];
   optional uint32 video_crop_size_h = 7 [default = 0];
   optional uint32 video_crop_size_w = 8 [default = 0];
+
+  optional uint32 video_step_min = 9 [default = 1];
+  optional uint32 video_step_max = 10 [default = 1];
 }
 
 // Message that stores parameters used by AccuracyLayer

@@ -94,6 +94,9 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
     int video_crop_size_h = param_.video_crop_size_h();
     int video_crop_size_w = param_.video_crop_size_w();
     int crop_frames = param_.video_crop_size_t();
+
+    int video_step_max = param_.video_step_max();
+
     int crop_width = 0;
     int crop_height = 0;
 
@@ -114,26 +117,57 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
                  << "to be set at the same time.";
     }
 
+    int h_off, w_off, f_off, left_index, right_index;
+
+    // video status
+    bool need_pad = false;
+    int v_step = frames / crop_frames;
+    if(v_step == 0) {
+      need_pad =  true;
+      v_step = 1;
+    } else if(v_step > video_step_max) {
+      v_step = video_step_max;
+    }
+    if(v_step >= 2) {
+      v_step = Rand() % v_step + 1;
+    }
+
+    if(need_pad) {
+      left_index = (crop_frames - frames) / 2;
+      right_index = left_index + crop_frames - 1;
+      f_off = - left_index;
+    } else {
+      f_off = Rand() % (frames - crop_frames * v_step + v_step);
+    }
+
+    // memset transformed data
+    int video_size = crop_frames * channels * crop_height * crop_width;
+    caffe_set(video_size, Dtype(0), 
+              transformed_data + (batch_item_id * video_size));
+
     if (crop_width > 0 && crop_height > 0) {
       CHECK(data.size()) << "Image cropping only support uint8 data";
-      int h_off, w_off, f_off;
+
       // We only do random crop when we do training.
       if (phase_ == Caffe::TRAIN) {
         h_off = Rand() % (height - crop_height);
         w_off = Rand() % (width - crop_width);
-        f_off = Rand() % (frames - crop_frames);
       } else {
         h_off = (height - crop_height) / 2;
         w_off = (width - crop_width) / 2;
-        f_off = (frames - crop_frames) / 2;
       }
       if (mirror && Rand() % 2) {
         // Copy mirrored version
         for (int f = 0; f < crop_frames; ++f) {
+          if(need_pad && (f<left_index || f>right_index)) {
+            continue;
+          }
+          // cf: coresponding f
+          int cf = f * v_step;
           for (int c = 0; c < channels; ++c) {
             for (int h = 0; h < crop_height; ++h) {
               for (int w = 0; w < crop_width; ++w) {
-                int data_index = (((f_off + f) * channels + c) * height + h + h_off) * width + w + w_off;
+                int data_index = (((f_off + cf) * channels + c) * height + h + h_off) * width + w + w_off;
                 int mean_index = (c * height + h + h_off) * width + w + w_off;
                 int top_index = (((batch_item_id * crop_frames + f)* channels + c) * crop_height + h)
                     * crop_width + (crop_width - 1 - w);
@@ -148,10 +182,15 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
       } else {
         // Normal copy
         for (int f = 0; f < crop_frames; ++f) {
+          if(need_pad && (f<left_index || f>right_index)) {
+            continue;
+          }
+          // cf: coresponding f
+          int cf = f * v_step;
           for (int c = 0; c < channels; ++c) {
             for (int h = 0; h < crop_height; ++h) {
               for (int w = 0; w < crop_width; ++w) {
-                int data_index = (((f_off + f) * channels + c) * height + h + h_off) * width + w + w_off;
+                int data_index = (((f_off + cf) * channels + c) * height + h + h_off) * width + w + w_off;
                 int mean_index = (c * height + h + h_off) * width + w + w_off;
                 int top_index = (((batch_item_id * crop_frames + f)* channels + c) * crop_height + h)
                     * crop_width + w;
@@ -167,26 +206,30 @@ void DataTransformer<Dtype>::Transform(const int batch_item_id,
     } else {
       // we will prefer to use data() first, and then try float_data()
       // We only do random crop when we do training.
-      int f_off;
-      if (phase_ == Caffe::TRAIN) {
-        f_off = Rand() % (frames - crop_frames);
-      } else {
-        f_off = (frames - crop_frames) / 2;
-      }
       if (data.size()) {
         for (int f = 0; f < crop_frames; ++f) {
+          if(need_pad && (f<left_index || f>right_index)) {
+            continue;
+          }
+          // cf: coresponding f
+          int cf = f * v_step;
           for (int j = 0; j < size; ++j) {
             Dtype datum_element =
-                static_cast<Dtype>(static_cast<uint8_t>(data[(f_off + f) * size + j]));
+                static_cast<Dtype>(static_cast<uint8_t>(data[(f_off + cf) * size + j]));
             transformed_data[(batch_item_id * crop_frames + f) * size + j] =
                 (datum_element - mean[j]) * scale;
           }
         }
       } else {
         for (int f = 0; f < crop_frames; ++f) {
+          if(need_pad && (f<left_index || f>right_index)) {
+            continue;
+          }
+          // cf: coresponding f
+          int cf = f * v_step;
           for (int j = 0; j < size; ++j) {
             transformed_data[(batch_item_id * crop_frames + f) * size + j] =
-                (datum.float_data((f_off + f) * size + j) - mean[j]) * scale;
+                (datum.float_data((f_off + cf) * size + j) - mean[j]) * scale;
           }
         }
       }
