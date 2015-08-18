@@ -244,6 +244,7 @@ message LayerParameter {
     // Added by wps
     MULTICONVOLUTION = 38;
     RECURSIVE_ONCE = 39;
+    TEMPORAL_CONVOLUTION = 40;
     DATA = 5;
     DROPOUT = 6;
     DUMMY_DATA = 32;
@@ -333,6 +334,7 @@ message LayerParameter {
   // Added by wps
   optional MultiConvolutionParameter multi_convolution_param = 41;
   optional RecursiveOnceParameter recursive_once_param = 42;
+  optional TemporalConvolutionParameter temporal_convolution_param = 43;
 
   // Parameters for data pre-processing.
   optional TransformationParameter transform_param = 36;
@@ -450,6 +452,24 @@ message MultiConvolutionParameter {
     CUDNN = 2;
   }
   optional Engine engine = 15 [default = DEFAULT];
+}
+
+message TemporalConvolutionParameter{
+  optional uint32 group = 1 [default = 1]; // The group size
+  optional uint32 num_output = 2; 
+  optional uint32 kernel_size = 3 [default = 3]; // The stride
+  optional uint32 stride = 4 [default = 1]; // The stride
+  optional uint32 pad = 5 [default = 0]; // The stride
+  // Should have bias term ???
+  optional bool bias_term = 6 [default = true]; // whether to have bias terms
+  optional FillerParameter weight_filler = 7; // The filler for the weight
+  optional FillerParameter bias_filler = 8; // The filler for the bias
+  enum Engine {
+    DEFAULT = 0;
+    CAFFE = 1;
+    CUDNN = 2;
+  }
+  optional Engine engine = 9 [default = DEFAULT];
 }
 
 message RecursiveOnceParameter {
