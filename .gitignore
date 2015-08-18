@@ -5,6 +5,7 @@ Makefile.config
 *.binaryproto
 *.mdb
 log
+Makefile.config
 
 # Compiled Object files
 *.slo
