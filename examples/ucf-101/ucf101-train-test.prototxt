@@ -1,4 +1,5 @@
-name: "conv_rnn_net"
+name: "conv4video_net"
+
 layers {
   name: "data"
   type: DATA
@@ -11,7 +12,7 @@ layers {
   } 
   transform_param {
     is_video: true
-    video_crop_size_t: 22
+    video_crop_size_t: 16
     video_crop_size_h: 227
     video_crop_size_w: 227
     mean_file: "examples/ucf-101/ucf101_mean.binaryproto"
@@ -32,7 +33,7 @@ layers {
   }
   transform_param {
     is_video: true
-    video_crop_size_t: 22 
+    video_crop_size_t: 16
     video_crop_size_h: 227
     video_crop_size_w: 227
     mean_file: "examples/ucf-101/ucf101_mean.binaryproto"
@@ -87,125 +88,18 @@ layers {
   }
 }
 
-layers {
-  name: "norm1"
-  type: LRN
-  bottom: "pool1"
-  top: "norm1"
-  lrn_param {
-    local_size: 5
-    alpha: 0.0001
-    beta: 0.75
-  }
-}
+#layers {
+#  name: "norm1"
+#  type: LRN
+#  bottom: "pool1"
+#  top: "norm1"
+#  lrn_param {
+#    local_size: 5
+#    alpha: 0.0001
+#    beta: 0.75
+#  }
+#}
 
-layers {
-  name: "r1"
-  type: RECURSIVE_ONCE
-  bottom: "norm1"
-  top: "r1"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  recursive_once_param {
-    group: 22
-    relative_position: 0
-    relative_position: 1
-    num_uv: 2
-    assemble_size: 5
-    stride: 2
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-  param: "rnn_first_w"
-  param: "rnn_first_b"
-}
-
-layers {
-  name: "relu_r1"
-  type: RELU
-  bottom: "r1"
-  top: "r1"
-}
-
-layers {
-  name: "r2"
-  type: RECURSIVE_ONCE
-  bottom: "r1"
-  top: "r2"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  recursive_once_param {
-    group: 11
-    relative_position: 0
-    relative_position: 1
-    num_uv: 2
-    assemble_size: 5
-    stride: 1
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-  param: "rnn_first_w"
-  param: "rnn_first_b"
-}
-
-layers {
-  name: "relu_r2"
-  type: RELU
-  bottom: "r2"
-  top: "r2"
-}
-
-layers {
-  name: "r3"
-  type: RECURSIVE_ONCE
-  bottom: "r2"
-  top: "r3"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  recursive_once_param {
-    group: 10
-    relative_position: 0
-    relative_position: 2
-    num_uv: 2
-    assemble_size: 5
-    stride: 1
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-  param: "rnn_first_w"
-  param: "rnn_first_b"
-}
-
-layers {
-  name: "relu_r3"
-  type: RELU
-  bottom: "r3"
-  top: "r3"
-}
 
 layers {
   name: "conv2"
@@ -251,126 +145,18 @@ layers {
     stride: 2
   }
 }
-layers {
-  name: "norm2"
-  type: LRN
-  bottom: "pool2"
-  top: "norm2"
-  lrn_param {
-    local_size: 5
-    alpha: 0.0001
-    beta: 0.75
-  }
-}
 
-
-layers {
-  name: "r4"
-  type: RECURSIVE_ONCE
-  bottom: "norm2"
-  top: "r4"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  recursive_once_param {
-    group: 8 
-    num_uv: 2
-    relative_position: 0
-    relative_position: 1
-    assemble_size: 5
-    stride: 2
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-  param: "rnn_second_w"
-  param: "rnn_second_b"  
-}
-
-layers {
-  name: "relu_r4"
-  type: RELU
-  bottom: "r4"
-  top: "r4"
-}
-
-layers {
-  name: "r5"
-  type: RECURSIVE_ONCE
-  bottom: "r4"
-  top: "r5"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  recursive_once_param {
-    group: 4
-    num_uv: 2
-    relative_position: 0
-    relative_position: 1
-    assemble_size: 5
-    stride: 2
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-  param: "rnn_second_w"
-  param: "rnn_second_b"  
-}
-
-layers {
-  name: "relu_r5"
-  type: RELU
-  bottom: "r5"
-  top: "r5"
-}
-
-layers {
-  name: "r6"
-  type: RECURSIVE_ONCE
-  bottom: "r5"
-  top: "r6"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  recursive_once_param {
-    group: 2
-    num_uv: 2
-    relative_position: 0
-    relative_position: 1
-    assemble_size: 5
-    stride: 1
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-  param: "rnn_second_w"
-  param: "rnn_second_b"  
-}
-
-layers {
-  name: "relu_r6"
-  type: RELU
-  bottom: "r6"
-  top: "r6"
-}
+#layers {
+#  name: "norm2"
+#  type: LRN
+#  bottom: "pool2"
+#  top: "norm2"
+#  lrn_param {
+#    local_size: 5
+#    alpha: 0.0001
+#    beta: 0.75
+#  }
+#}
 
 layers {
   name: "conv3"
@@ -418,17 +204,17 @@ layers {
   }
 }
 
-layers {
-  name: "norm3"
-  type: LRN
-  bottom: "pool3"
-  top: "norm3"
-  lrn_param {
-    local_size: 5
-    alpha: 0.0001
-    beta: 0.75
-  }
-}
+#layers {
+#  name: "norm3"
+#  type: LRN
+#  bottom: "pool3"
+#  top: "norm3"
+#  lrn_param {
+#    local_size: 5
+#    alpha: 0.0001
+#    beta: 0.75
+#  }
+#}
 
 layers {
   name: "fc4"

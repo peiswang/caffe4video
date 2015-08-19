@@ -415,6 +415,7 @@ class TemporalConvolutionLayer : public Layer<Dtype> {
   /// dimensions of the data and filter matrices.
   int N_;
   Blob<Dtype> bias_multiplier_;
+  Blob<Dtype> padded_bottom_i_;
 };
 
 /**

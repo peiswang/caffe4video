@@ -86,6 +86,10 @@ void TemporalConvolutionLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom
   N_ = height_ * width_;
   K_ = kernel_size_ * vl_;
   // 
+  // Set up padded_bottom_i_ if pad is needed
+  if (pad_ > 0) {
+    padded_bottom_i_.Reshape(1, K_, height_, width_);
+  }
   // Set up the all ones "bias multiplier" for adding biases by BLAS
   if (bias_term_) {
     bias_multiplier_.Reshape(1, 1, 1, N_);
@@ -107,9 +111,20 @@ void TemporalConvolutionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bo
 
     for (int n = 0; n < num_; ++n) {
       for (int g = 0; g < group_out_; ++g) {
-        caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_, K_,
-            (Dtype)1., weight, bottom_data + bottom[i]->offset(n) + bottom_offset * g,
-            (Dtype)0., top_data + (*top)[i]->offset(n) + top_offset * g);
+        if (g * stride_ < pad_) {
+          caffe_set((pad_ - g * stride_) * vl_ * N_, Dtype(0), padded_bottom_i_.mutable_cpu_data());
+          caffe_copy((kernel_size_ - pad_ + g * stride_) * vl_ * N_, bottom_data, padded_bottom_i_.mutable_cpu_data());
+          caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_, K_,
+              (Dtype)1., weight, padded_bottom_i_.cpu_data(),
+              (Dtype)0., top_data + (*top)[i]->offset(n) + top_offset * g);
+        //} else if (group_out_ - g - 1 < pad_ / stride_) {
+        } else if (g * stride_ > pad_ + group_) {
+
+        } else {
+          caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_, K_,
+              (Dtype)1., weight, bottom_data + bottom[i]->offset(n) + bottom_offset * g,
+              (Dtype)0., top_data + (*top)[i]->offset(n) + top_offset * g);
+        }
         if (bias_term_) {
           caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, 
               N_, 1, (Dtype)1., this->blobs_[1]->cpu_data(),
