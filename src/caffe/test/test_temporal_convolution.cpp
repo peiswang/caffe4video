@@ -28,6 +28,7 @@ void caffe_temporal_conv(const Blob<Dtype>* in, TemporalConvolutionParameter* pa
 
   int out_group = (group + 2 * pad - kernel_size) / stride + 1;
 
+  int num = in->num();
   int channels = in->channels();
   int vl = channels / group;
 
@@ -36,7 +37,19 @@ void caffe_temporal_conv(const Blob<Dtype>* in, TemporalConvolutionParameter* pa
   int height = in->height();
   int width = in->width();
 
+  Blob<Dtype> in_new;
+  in_new.Reshape(num, channels+2*pad*vl, height, width);
+  Dtype* in_new_mutable_data = in_new.mutable_cpu_data();
+
   const Dtype* in_data = in->cpu_data();
+  for(int i=0;i<num*(channels+2*pad*vl)*height*width;i++)
+    in_new_mutable_data[i] = Dtype(0);
+  for(int i=0;i<num;i++)
+  {
+    for(int j=0;j<channels*height*width;j++)
+      (in_new_mutable_data + in_new.offset(i))[pad*vl*height*width+j] = (in_data+in->offset(i))[j];
+  }
+
   const Dtype* weight_data = weights[0]->cpu_data();
   Dtype* out_data = out->mutable_cpu_data();
   const Dtype* bias_data = NULL;
@@ -44,6 +57,7 @@ void caffe_temporal_conv(const Blob<Dtype>* in, TemporalConvolutionParameter* pa
   if (param->bias_term()) {
     bias_data = weights[1]->cpu_data();
   }
+  const Dtype* in_new_data = in_new.cpu_data();
 
   for (int n = 0 ; n < out->num(); ++n) {
     for (int g = 0; g < out_group ; ++g) {
@@ -55,7 +69,8 @@ void caffe_temporal_conv(const Blob<Dtype>* in, TemporalConvolutionParameter* pa
             for (int ks=0; ks<kernel_size;ks++) {
               for (int vi=0;vi<vl;vi++)
               {
-                 tmp += weight_data[weights[0]->offset(0, v, ks, vi)] * in_data[in->offset(n, g*stride*vl + ks*vl + vi, y, x)];
+                 tmp += weight_data[weights[0]->offset(0, v, ks, vi)] 
+                      * in_new_data[in_new.offset(n, g*stride*vl + ks*vl + vi, y, x)];
               }
             }
             
@@ -63,23 +78,6 @@ void caffe_temporal_conv(const Blob<Dtype>* in, TemporalConvolutionParameter* pa
               tmp += bias_data[weights[1]->offset(0,0,0, v)];
             }
             out_data[out->offset(n, g*num_output+v, y, x)] = tmp;
-            //for(int as = 0; as < assemble_size; ++as) {
-            //  Dtype tmp = 0.0;
-            //  for (int uv = 0; uv < num_uv; ++uv) {
-            //      for (int vw = 0; vw < vl; ++vw) {
-            //        tmp += weight_data[weights[0]->offset(as, uv, v, vw)] * 
-            //               in_data[in->offset(n, 
-            //                       stride*g*vl+vl*param->relative_position(uv)+vw,
-            //                       y, x)];
-            //      }
-            //  }
-            //  if (param->bias_term()) {
-            //    tmp += bias_data[weights[1]->offset(0,0,as, v)];
-            //  }
-            //  out_data[out->offset(n, g*vl+v, y, x)] = 
-            //     MAX(out_data[out->offset(n, g*vl+v, y, x)], tmp);
-            //}
-
           }
         }
       }
@@ -96,7 +94,7 @@ protected:
 	// num: 1
 	// channels: 8x12 ( frames x feature maps )
 	// height, width = 3, 3 
-	: blob_bottom_(new Blob<Dtype>(3, 96, 3, 3)), 
+	: blob_bottom_(new Blob<Dtype>(3, 96, 4, 4)), 
 	  blob_top_(new Blob<Dtype>())
   {}
   virtual void SetUp() {
@@ -143,7 +141,8 @@ TYPED_TEST(TemporalConvolutionTest, TestSetup) {
 
   temporal_convolution_param->set_stride(2);
   temporal_convolution_param->set_group(8); 
-  temporal_convolution_param->set_num_output(10);
+  temporal_convolution_param->set_pad(1); 
+  temporal_convolution_param->set_num_output(5);
   temporal_convolution_param->set_kernel_size(3);
 
   temporal_convolution_param->set_bias_term(true); 
@@ -152,9 +151,9 @@ TYPED_TEST(TemporalConvolutionTest, TestSetup) {
     new TemporalConvolutionLayer<Dtype>(layer_param));
   layer->SetUp(this->blob_bottom_vec_, &(this->blob_top_vec_));
   EXPECT_EQ(this->blob_top_->num(), 3);
-  EXPECT_EQ(this->blob_top_->channels(), 30);
-  EXPECT_EQ(this->blob_top_->height(), 3);
-  EXPECT_EQ(this->blob_top_->width(), 3);
+  EXPECT_EQ(this->blob_top_->channels(), 20);
+  EXPECT_EQ(this->blob_top_->height(), 4);
+  EXPECT_EQ(this->blob_top_->width(), 4);
 }
 
 TYPED_TEST(TemporalConvolutionTest, TestForward) {
@@ -163,8 +162,9 @@ TYPED_TEST(TemporalConvolutionTest, TestForward) {
   TemporalConvolutionParameter* temporal_convolution_param = 
     layer_param.mutable_temporal_convolution_param();
 
-  temporal_convolution_param->set_stride(1);
+  temporal_convolution_param->set_stride(2);
   temporal_convolution_param->set_group(8); 
+  temporal_convolution_param->set_pad(2); 
   temporal_convolution_param->set_num_output(10);
   temporal_convolution_param->set_kernel_size(3);
 
@@ -199,9 +199,10 @@ TYPED_TEST(TemporalConvolutionTest, TestGradient) {
   TemporalConvolutionParameter* temporal_convolution_param = 
   	layer_param.mutable_temporal_convolution_param();
 
-  temporal_convolution_param->set_stride(1);
+  temporal_convolution_param->set_stride(2);
   temporal_convolution_param->set_group(8); 
-  temporal_convolution_param->set_num_output(10);
+  temporal_convolution_param->set_pad(2); 
+  temporal_convolution_param->set_num_output(5);
   temporal_convolution_param->set_kernel_size(3);
 
   //temporal_convolution_param->set_bias_term(true); 
