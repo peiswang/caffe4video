@@ -51,17 +51,29 @@ void caffe_cpu_gemv<double>(const CBLAS_TRANSPOSE TransA, const int M,
 
 template <>
 void caffe_cpu_backfill<float>(const int N, const float* x,
-                const int* index, float* A) {
-  for (int i = 0; i < N; ++i) {
-    A[index[i]*N+i] = x[i];
+                const int* index, float* A, bool accumulate) {
+  if (!accumulate) {
+    for (int i = 0; i < N; ++i) {
+      A[index[i]*N+i] = x[i];
+    }
+  } else {
+    for (int i = 0; i < N; ++i) {
+      A[index[i]*N+i] += x[i];
+    }
   }
 }
 
 template <>
 void caffe_cpu_backfill<double>(const int N, const double* x,
-                const int* index, double* A) {
-  for (int i = 0; i < N; ++i) {
-    A[index[i]*N+i] = x[i];
+                const int* index, double* A, bool accumulate) {
+  if (!accumulate) {
+    for (int i = 0; i < N; ++i) {
+      A[index[i]*N+i] = x[i];
+    }
+  } else {
+    for (int i = 0; i < N; ++i) {
+      A[index[i]*N+i] += x[i];
+    }
   }
 }
 

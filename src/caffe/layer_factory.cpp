@@ -117,6 +117,33 @@ template TemporalConvolutionLayer<float>* GetTemporalConvolutionLayer(const stri
 template TemporalConvolutionLayer<double>* GetTemporalConvolutionLayer(const string& name,
     const LayerParameter& param);
 
+// Get temporal pooling layer according to engine.
+template <typename Dtype>
+TemporalPoolingLayer<Dtype>* GetTemporalPoolingLayer(const string& name,
+    const LayerParameter& param) {
+  TemporalPoolingParameter_Engine engine = param.temporal_pooling_param().engine();
+  if (engine == TemporalPoolingParameter_Engine_DEFAULT) {
+    engine = TemporalPoolingParameter_Engine_CAFFE;
+#ifdef USE_CUDNN
+    engine = TemporalPoolingParameter_Engine_CUDNN;
+#endif
+  }
+  if (engine == TemporalPoolingParameter_Engine_CAFFE) {
+    return new TemporalPoolingLayer<Dtype>(param);
+#ifdef USE_CUDNN
+  } else if (engine == TemporalPoolingParameter_Engine_CUDNN) {
+    return new CuDNNTemporalPoolingLayer<Dtype>(param);
+#endif
+  } else {
+    LOG(FATAL) << "Layer " << name << " has unknown engine.";
+  }
+}
+
+template TemporalPoolingLayer<float>* GetTemporalPoolingLayer(const string& name,
+    const LayerParameter& param);
+template TemporalPoolingLayer<double>* GetTemporalPoolingLayer(const string& name,
+    const LayerParameter& param);
+
 // Get pooling layer according to engine.
 template <typename Dtype>
 PoolingLayer<Dtype>* GetPoolingLayer(const string& name,
@@ -280,6 +307,8 @@ Layer<Dtype>* GetLayer(const LayerParameter& param) {
     return GetRecursiveOnceLayer<Dtype>(name, param);
   case LayerParameter_LayerType_TEMPORAL_CONVOLUTION:
     return GetTemporalConvolutionLayer<Dtype>(name, param);
+  case LayerParameter_LayerType_TEMPORAL_POOLING:
+    return GetTemporalPoolingLayer<Dtype>(name, param);
   case LayerParameter_LayerType_DATA:
     return new DataLayer<Dtype>(param);
   case LayerParameter_LayerType_DROPOUT:

@@ -73,7 +73,7 @@ bool DatumVideoReader::ReadVideoToDatum(const string& filename, const int label,
       }
 
     } else {
-      LOG(ERROR) << "empty frame in " << filename;
+      LOG(ERROR) << "empty frame in " << filename << " : " << (frame_id + 1) << "/" << num_frames;
       break;
     }
   }

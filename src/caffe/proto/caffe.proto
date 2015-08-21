@@ -245,6 +245,7 @@ message LayerParameter {
     MULTICONVOLUTION = 38;
     RECURSIVE_ONCE = 39;
     TEMPORAL_CONVOLUTION = 40;
+    TEMPORAL_POOLING= 41;
     DATA = 5;
     DROPOUT = 6;
     DUMMY_DATA = 32;
@@ -335,6 +336,7 @@ message LayerParameter {
   optional MultiConvolutionParameter multi_convolution_param = 41;
   optional RecursiveOnceParameter recursive_once_param = 42;
   optional TemporalConvolutionParameter temporal_convolution_param = 43;
+  optional TemporalPoolingParameter temporal_pooling_param = 44;
 
   // Parameters for data pre-processing.
   optional TransformationParameter transform_param = 36;
@@ -683,6 +685,26 @@ message PoolingParameter {
     CUDNN = 2;
   }
   optional Engine engine = 11 [default = DEFAULT];
+}
+
+// Message that stores parameters used by TemporalPoolingLayer
+message TemporalPoolingParameter {
+  enum PoolMethod {
+    MAX = 0;
+    AVE = 1;
+    STOCHASTIC = 2;
+  }
+  optional PoolMethod pool = 1 [default = MAX]; // The pooling method
+  optional uint32 pad = 2 [default = 0]; // The padding size 
+  optional uint32 kernel_size = 3 [default = 2];
+  optional uint32 stride = 4 [default = 1]; // The stride 
+  optional uint32 group = 5;
+  enum Engine {
+    DEFAULT = 0;
+    CAFFE = 1;
+    CUDNN = 2;
+  }
+  optional Engine engine = 6 [default = DEFAULT];
 }
 
 // Message that stores parameters used by PowerLayer

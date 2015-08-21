@@ -20,6 +20,10 @@ int main()
     ofstream onfile_test2("testlist02_.txt");
     ofstream onfile_test3("testlist03_.txt");
 
+    ofstream onfile_train1("trainlist01_.txt");
+    ofstream onfile_train2("trainlist02_.txt");
+    ofstream onfile_train3("trainlist03_.txt");
+
     map<string, int> my_map; 
 
     string filename;
@@ -28,28 +32,31 @@ int main()
     while (infile1 >> filename >> label) 
     {
         my_map.insert(make_pair<string,int>(filename, label)); 
+        onfile_train1 << filename << " " << label - 1 << endl;
     }
     while (infile2 >> filename >> label) 
     {
         my_map.insert(make_pair<string,int>(filename, label)); 
+        onfile_train2 << filename << " " << label - 1 << endl;
     }
     while (infile3 >> filename >> label) 
     {
         my_map.insert(make_pair<string,int>(filename, label)); 
+        onfile_train3 << filename << " " << label - 1 << endl;
     }
     cout<<"number: "<<my_map.size()<<endl;
 
     while (infile_test1 >> filename) 
     {
-        onfile_test1 << filename << " " << my_map[filename] << endl;
+        onfile_test1 << filename << " " << my_map[filename] - 1 << endl;
     }
     while (infile_test2 >> filename) 
     {
-        onfile_test2 << filename << " " << my_map[filename] << endl;
+        onfile_test2 << filename << " " << my_map[filename] - 1 << endl;
     }
     while (infile_test3 >> filename) 
     {
-        onfile_test3 << filename << " " << my_map[filename] << endl;
+        onfile_test3 << filename << " " << my_map[filename] - 1 << endl;
     }
     infile1.close();
     infile2.close();
@@ -62,4 +69,8 @@ int main()
     onfile_test1.close();
     onfile_test2.close();
     onfile_test3.close();
+
+    onfile_train1.close();
+    onfile_train2.close();
+    onfile_train3.close();
 }

@@ -13,8 +13,8 @@ TEST_DATA_ROOT=data/ucf-101/UCF101/
 # already been resized using another tool.
 RESIZE=true
 if $RESIZE; then
-  RESIZE_HEIGHT=128
-  RESIZE_WIDTH=170
+  RESIZE_HEIGHT=256
+  RESIZE_WIDTH=256
 else
   RESIZE_HEIGHT=0
   RESIZE_WIDTH=0
@@ -34,15 +34,15 @@ if [ ! -d "$TEST_DATA_ROOT" ]; then
   exit 1
 fi
 
-#echo "Creating train lmdb..."
-#
-#GLOG_logtostderr=1 $TOOLS/convert_ucf101.bin \
-#    --resize_height=$RESIZE_HEIGHT \
-#    --resize_width=$RESIZE_WIDTH \
-#    --shuffle \
-#    $TRAIN_DATA_ROOT \
-#    $DATA/ucfTrainTestlist/trainlist01.txt \
-#    $EXAMPLE/ucf101_train_lmdb
+echo "Creating train lmdb..."
+
+GLOG_logtostderr=1 $TOOLS/convert_ucf101.bin \
+    --resize_height=$RESIZE_HEIGHT \
+    --resize_width=$RESIZE_WIDTH \
+    --shuffle \
+    $TRAIN_DATA_ROOT \
+    $DATA/ucfTrainTestlist/trainlist01_.txt \
+    $EXAMPLE/ucf101_train_lmdb
 
 echo "Creating test lmdb..."
 

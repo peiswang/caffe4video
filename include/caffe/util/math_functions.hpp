@@ -29,7 +29,7 @@ void caffe_cpu_gemv(const CBLAS_TRANSPOSE TransA, const int M, const int N,
 //                                             [0, 0.4, 0.1, 0]] 
 template <typename Dtype>
 void caffe_cpu_backfill(const int N, const Dtype* x,
-     const int* index, Dtype* A);
+     const int* index, Dtype* A, bool accumulate = false);
 
 // added by sxyu
 template <typename Dtype>
@@ -185,7 +185,7 @@ void caffe_gpu_gemv(const CBLAS_TRANSPOSE TransA, const int M, const int N,
 //                                             [0, 0.4, 0.1, 0]] 
 template <typename Dtype>
 void caffe_gpu_backfill(const int N, const Dtype* x,
-     const int* index, Dtype* A);
+     const int* index, Dtype* A, bool accumulate = false);
 
 template <typename Dtype>
 Dtype caffe_gpu_norm(const int N, const Dtype* x);

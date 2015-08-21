@@ -418,6 +418,64 @@ class TemporalConvolutionLayer : public Layer<Dtype> {
   Blob<Dtype> padded_bottom_i_;
 };
 
+
+/**
+ * @brief Pools the input video frames by taking the max, average, etc. across temporal.
+ *
+ * TODO(dox): thorough documentation for Forward, Backward, and proto params.
+ *            add pad
+ */
+template <typename Dtype>
+class TemporalPoolingLayer : public Layer<Dtype> {
+ public:
+  explicit TemporalPoolingLayer(const LayerParameter& param)
+      : Layer<Dtype>(param) {}
+  virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+
+  virtual inline LayerParameter_LayerType type() const {
+    return LayerParameter_LayerType_POOLING;
+  }
+  virtual inline int ExactNumBottomBlobs() const { return 1; }
+  virtual inline int ExactNumTopBlobs() const { return 1; }
+  //virtual inline int MinTopBlobs() const { return 1; }
+  // MAX POOL layers can output an extra top blob for the mask;
+  // others can only output the pooled inputs.
+  //virtual inline int MaxTopBlobs() const {
+    //return (this->layer_param_.temporal_pooling_param().pool() ==
+    //        TemporalPoolingParameter_PoolMethod_MAX) ? 2 : 1;
+  //}
+
+ protected:
+  virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+      vector<Blob<Dtype>*>* top);
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const vector<bool>& propagate_down, vector<Blob<Dtype>*>* bottom);
+  virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+      const vector<bool>& propagate_down, vector<Blob<Dtype>*>* bottom);
+
+  //int kernel_h_, kernel_w_;
+  //int stride_h_, stride_w_;
+  //int pad_h_, pad_w_;
+  int kernel_size_;
+  int stride_;
+  int pad_;
+  int group_;
+  int channels_;
+  int vl_;
+  int height_, width_;
+  //int pooled_height_, pooled_width_;
+  int pooled_length_;
+  Blob<Dtype> rand_idx_;
+  Blob<int> max_idx_;
+  int K_;
+};
+
+
 /**
  * @brief A helper for image operations that rearranges image regions into
  *        column vectors.  Used by ConvolutionLayer to perform convolution

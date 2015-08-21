@@ -66,24 +66,30 @@ void caffe_gpu_gemv<double>(const CBLAS_TRANSPOSE TransA, const int M,
 
 template <typename Dtype>
 __global__ void backfill_kernel(const int n, const Dtype* x, 
-                const int* index, Dtype* A) {
-  CUDA_KERNEL_LOOP(idx, n) {
-    A[index[idx]*n+idx] = x[idx];
+                const int* index, Dtype* A, bool accumulate) {
+  if (!accumulate) {
+    CUDA_KERNEL_LOOP(idx, n) {
+      A[index[idx]*n+idx] = x[idx];
+    }
+  } else {
+    CUDA_KERNEL_LOOP(idx, n) {
+      A[index[idx]*n+idx] += x[idx];
+    }
   }
 }
 
 template <>
 void caffe_gpu_backfill<float>(const int N, const float* x,
-                const int* index, float* A) {
+                const int* index, float* A, bool accumulate) {
   backfill_kernel<float><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
-      N, x, index, A);
+      N, x, index, A, accumulate);
 }
 
 template <>
 void caffe_gpu_backfill<double>(const int N, const double* x,
-                const int* index, double* A) {
+                const int* index, double* A, bool accumulate) {
   backfill_kernel<double><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
-      N, x, index, A);
+      N, x, index, A, accumulate);
 }
 
 template <>
