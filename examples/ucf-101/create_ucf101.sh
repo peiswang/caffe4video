@@ -2,7 +2,8 @@
 # Create the ucf101 lmdb inputs
 # N.B. set the path to the ucf101 train + val data dirs
 
-EXAMPLE=examples/ucf-101
+#EXAMPLE=examples/ucf-101
+EXAMPLE=/data/wps/ucf-101
 DATA=data/ucf-101
 TOOLS=build/examples/ucf-101
 
@@ -13,8 +14,8 @@ TEST_DATA_ROOT=data/ucf-101/UCF101/
 # already been resized using another tool.
 RESIZE=true
 if $RESIZE; then
-  RESIZE_HEIGHT=320
-  RESIZE_WIDTH=240
+  RESIZE_HEIGHT=240
+  RESIZE_WIDTH=320
 else
   RESIZE_HEIGHT=0
   RESIZE_WIDTH=0
