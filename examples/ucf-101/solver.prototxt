@@ -11,7 +11,8 @@ max_iter: 45000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 1000 
-snapshot_prefix: "examples/ucf-101/ucf101-train"
+snapshot_prefix: "examples/ucf-101/model/ucf101-train"
 solver_mode: GPU
+device_id: 1
 
-update_interval: 2
+#update_interval: 5

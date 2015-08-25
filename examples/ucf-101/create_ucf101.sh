@@ -13,8 +13,8 @@ TEST_DATA_ROOT=data/ucf-101/UCF101/
 # already been resized using another tool.
 RESIZE=true
 if $RESIZE; then
-  RESIZE_HEIGHT=256
-  RESIZE_WIDTH=256
+  RESIZE_HEIGHT=320
+  RESIZE_WIDTH=240
 else
   RESIZE_HEIGHT=0
   RESIZE_WIDTH=0
